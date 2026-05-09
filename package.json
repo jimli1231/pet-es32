@@ -1,0 +1,16 @@
+{
+  "name": "esp32-touch-cat",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ESP32-S3 ST7789V2 touch cat expression sketch helpers",
+  "scripts": {
+    "ports": "arduino-cli board list",
+    "compile": "arduino-cli compile --fqbn esp32:esp32:esp32s3 .",
+    "upload": "arduino-cli upload -p /dev/cu.usbserial-1410 --fqbn esp32:esp32:esp32s3 --upload-property upload.speed=115200 .",
+    "burn": "npm run upload",
+    "flash": "npm run upload",
+    "monitor": "arduino-cli monitor -p /dev/cu.usbserial-1410 -c baudrate=115200",
+    "chip": "/Users/jimli/Library/Arduino15/packages/esp32/tools/esptool_py/5.2.0/esptool --port /dev/cu.usbserial-1410 chip-id",
+    "verify": "npm run compile"
+  }
+}
