@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ESP32-S3 接线工作台</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --panel-2: #eef2f6;
+      --text: #17202a;
+      --muted: #647386;
+      --line: #d7dee8;
+      --blue: #2563eb;
+      --red: #dc2626;
+      --black: #1f2937;
+      --yellow: #ca8a04;
+      --green: #16a34a;
+      --orange: #ea580c;
+      --violet: #7c3aed;
+      --cyan: #0891b2;
+      --shadow: 0 10px 30px rgba(23, 32, 42, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-height: 64px;
+      padding: 12px 24px;
+      background: rgba(255, 255, 255, .94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 720;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    .toolbar input,
+    .toolbar select {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .toolbar input {
+      width: 220px;
+      padding: 0 12px;
+    }
+
+    .toolbar select {
+      padding: 0 34px 0 10px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 310px minmax(0, 1fr);
+      min-height: calc(100vh - 64px);
+    }
+
+    aside {
+      border-right: 1px solid var(--line);
+      background: #fff;
+      padding: 18px;
+      overflow: auto;
+    }
+
+    main {
+      padding: 22px;
+      overflow: hidden;
+    }
+
+    .module-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .module-btn {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .module-btn:hover { background: var(--panel-2); }
+
+    .module-btn.active {
+      border-color: rgba(37, 99, 235, .35);
+      background: #eaf1ff;
+    }
+
+    .icon {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      font-size: 18px;
+    }
+
+    .name {
+      display: block;
+      font-size: 14px;
+      font-weight: 680;
+      line-height: 1.3;
+    }
+
+    .meta {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(330px, .75fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .stage,
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .stage {
+      position: relative;
+      min-height: 600px;
+      overflow: hidden;
+    }
+
+    .stage-head,
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 48px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .stage-head strong,
+    .panel-head strong {
+      font-size: 15px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      height: 552px;
+      background:
+        linear-gradient(#eef2f7 1px, transparent 1px),
+        linear-gradient(90deg, #eef2f7 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .board-label {
+      font-size: 13px;
+      font-weight: 720;
+      fill: #17202a;
+    }
+
+    .small-label {
+      font-size: 10px;
+      fill: #334155;
+    }
+
+    .pin-label {
+      font-size: 9px;
+      fill: #475569;
+    }
+
+    .wire {
+      fill: none;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,.18));
+    }
+
+    .wire-power { stroke: var(--red); }
+    .wire-ground { stroke: var(--black); }
+    .wire-signal { stroke: var(--yellow); }
+    .wire-signal2 { stroke: var(--green); }
+    .wire-signal3 { stroke: var(--violet); }
+    .wire-signal4 { stroke: var(--cyan); }
+    .wire-signal5 { stroke: var(--orange); }
+
+    .table-wrap { overflow: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 720;
+      background: #f8fafc;
+    }
+
+    code {
+      padding: 1px 5px;
+      border: 1px solid #dbe3ed;
+      border-radius: 5px;
+      background: #f8fafc;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: .92em;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .panel {
+      overflow: hidden;
+    }
+
+    .panel-body {
+      padding: 14px 16px 16px;
+    }
+
+    .kv {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+    }
+
+    .kv div {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 10px;
+      align-items: start;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .kv dt {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .kv dd { margin: 0; }
+
+    .notes {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding-left: 18px;
+      color: #334155;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .swatch {
+      width: 20px;
+      height: 5px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .breadboard-guide {
+      display: grid;
+      gap: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #334155;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .num {
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #17202a;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    @media (max-width: 1080px) {
+      header { align-items: flex-start; flex-direction: column; }
+      .toolbar { width: 100%; margin-left: 0; }
+      .toolbar input, .toolbar select { width: 100%; }
+      .layout { grid-template-columns: 1fr; }
+      aside { max-height: 320px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .top-grid, .info-grid { grid-template-columns: 1fr; }
+      .canvas-wrap { height: 520px; overflow-x: auto; }
+      svg { min-width: 800px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>ESP32-S3 接线工作台</h1>
+      <div class="subtitle">基于 <code>devices/README.md</code> 的现有器件，按模块查看面包板接线、GPIO 和注意事项。</div>
+    </div>
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="搜索：OLED、舵机、SHT30...">
+      <select id="category">
+        <option value="all">全部分类</option>
+        <option value="display">显示</option>
+        <option value="sensor">传感器</option>
+        <option value="input">输入 / 交互</option>
+        <option value="actuator">执行器</option>
+        <option value="comm">通信 / 转换</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside>
+      <div id="moduleList" class="module-list"></div>
+    </aside>
+
+    <main>
+      <div class="top-grid">
+        <section class="stage">
+          <div class="stage-head">
+            <strong id="diagramTitle">接线图</strong>
+            <div class="legend">
+              <span style="color: var(--red)"><i class="swatch"></i>VCC</span>
+              <span style="color: var(--black)"><i class="swatch"></i>GND</span>
+              <span style="color: var(--yellow)"><i class="swatch"></i>信号</span>
+              <span style="color: var(--green)"><i class="swatch"></i>第二信号</span>
+              <span style="color: var(--violet)"><i class="swatch"></i>SPI/I2C</span>
+            </div>
+          </div>
+          <div class="canvas-wrap">
+            <svg id="diagram" viewBox="0 0 920 552" role="img" aria-label="ESP32 和面包板接线图"></svg>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <strong id="moduleName">模块</strong>
+            <span id="categoryChip" class="chip">分类</span>
+          </div>
+          <div class="panel-body">
+            <dl class="kv">
+              <div><dt>型号</dt><dd id="moduleModel"></dd></div>
+              <div><dt>供电</dt><dd id="modulePower"></dd></div>
+              <div><dt>接口</dt><dd id="moduleInterface"></dd></div>
+              <div><dt>线材</dt><dd id="moduleWire"></dd></div>
+            </dl>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>模块引脚</th>
+                  <th>接到</th>
+                  <th>说明</th>
+                </tr>
+              </thead>
+              <tbody id="pinRows"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <div class="info-grid">
+        <section class="panel">
+          <div class="panel-head"><strong>面包板用法</strong></div>
+          <div class="panel-body breadboard-guide">
+            <div class="step"><span class="num">1</span><span>先把 ESP32 的 <code>3V3</code> 接到红色电源轨，把 <code>GND</code> 接到蓝色电源轨。</span></div>
+            <div class="step"><span class="num">2</span><span>所有模块的 <code>GND</code> 必须接到同一条蓝色电源轨，叫共地。</span></div>
+            <div class="step"><span class="num">3</span><span>左右两侧电源轨通常中间断开；如果要整条都能用，用短跳线把断点两边桥接。</span></div>
+            <div class="step"><span class="num">4</span><span>中间区域每 5 个孔横向相连，中间沟槽两边不相连，DIP 芯片要跨沟槽插。</span></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head"><strong>制作顺序</strong></div>
+          <div class="panel-body">
+            <ol class="notes" id="buildSteps"></ol>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head"><strong>注意事项</strong></div>
+          <div class="panel-body">
+            <ul class="notes" id="moduleNotes"></ul>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const modules = [
+      {
+        id: "st7789",
+        icon: "▣",
+        name: "2 寸 TFT LCD 彩屏",
+        model: "SPI，疑似 ST7789 / ILI9341；本项目已按 ST7789V2 跑通",
+        category: "display",
+        power: "3.3V",
+        interface: "SPI",
+        wire: "8 根 M-F 杜邦线；建议先插面包板再分线",
+        pins: [
+          ["VCC", "3V3 电源轨", "屏幕供电，先用 3.3V"],
+          ["GND", "GND 电源轨", "与 ESP32 共地"],
+          ["SCL / SCLK", "GPIO13", "SPI 时钟"],
+          ["SDA / MOSI", "GPIO12", "SPI 数据"],
+          ["RST", "GPIO8", "屏幕复位"],
+          ["DC", "GPIO11", "命令 / 数据选择"],
+          ["CS", "GPIO10", "SPI 片选"],
+          ["BL / LED", "GPIO5", "背光控制"]
+        ],
+        notes: [
+          "屏幕丝印里的 SDA/SCL 在这里是 SPI，不是 I2C。",
+          "这块屏幕建议 VCC 先接 3V3，不要直接接 5V。",
+          "如果只有背光没有图像，优先检查 CS、DC、RST、SDA、SCL。"
+        ]
+      },
+      {
+        id: "sht30",
+        icon: "℃",
+        name: "SHT30 温湿度传感器",
+        model: "I2C，高精度温湿度",
+        category: "sensor",
+        power: "3.3V / 5V 兼容，ESP32 推荐 3.3V",
+        interface: "I2C",
+        wire: "4 根 M-F 杜邦线",
+        pins: [
+          ["VCC", "3V3 电源轨", "模块供电"],
+          ["GND", "GND 电源轨", "共地"],
+          ["SDA", "GPIO8", "I2C 数据"],
+          ["SCL", "GPIO9", "I2C 时钟"]
+        ],
+        notes: [
+          "I2C 模块可以共用 GPIO8/GPIO9，只要地址不冲突。",
+          "如果同时接 TFT，GPIO8 已给 TFT RST，用 I2C 时建议改为 GPIO6/GPIO7。"
+        ]
+      },
+      {
+        id: "oled",
+        icon: "▤",
+        name: "0.96 寸 OLED 显示屏",
+        model: "128x64，I2C 地址常见 0x3C",
+        category: "display",
+        power: "3.3V",
+        interface: "I2C",
+        wire: "4 根 M-F 杜邦线",
+        pins: [
+          ["VCC", "3V3 电源轨", "模块供电"],
+          ["GND", "GND 电源轨", "共地"],
+          ["SDA", "GPIO8", "I2C 数据"],
+          ["SCL", "GPIO9", "I2C 时钟"]
+        ],
+        notes: [
+          "OLED 和 SHT30 可挂在同一组 I2C 总线上。",
+          "若屏幕不亮，先扫描 I2C 地址，常见是 0x3C。"
+        ]
+      },
+      {
+        id: "lcd1602",
+        icon: "16",
+        name: "LCD 1602 I2C 液晶屏",
+        model: "16x2 字符屏，PCF8574 转接板，常见地址 0x27",
+        category: "display",
+        power: "5V 更稳，I2C 信号需注意电平",
+        interface: "I2C",
+        wire: "4 根 M-F 杜邦线",
+        pins: [
+          ["VCC", "5V 电源轨", "背光和液晶供电"],
+          ["GND", "GND 电源轨", "共地"],
+          ["SDA", "GPIO8", "I2C 数据"],
+          ["SCL", "GPIO9", "I2C 时钟"]
+        ],
+        notes: [
+          "很多 1602 I2C 背包会把 SDA/SCL 上拉到 5V，ESP32 长期使用建议加电平转换或改 3.3V 上拉。",
+          "对比度不对会看起来像没显示，调背面蓝色电位器。"
+        ]
+      },
+      {
+        id: "soil-cap",
+        icon: "◒",
+        name: "电容式土壤湿度传感器",
+        model: "HW-390 / Capacitive Soil Moisture Sensor V2.0.0",
+        category: "sensor",
+        power: "3.3V",
+        interface: "模拟 ADC",
+        wire: "3 根 M-F 杜邦线，白色 JST 接头按丝印确认",
+        pins: [
+          ["VCC", "3V3 电源轨", "不要接 5V"],
+          ["GND", "GND 电源轨", "共地"],
+          ["AOUT", "GPIO2", "ADC1_CH1 模拟输入"]
+        ],
+        notes: [
+          "ESP32 ADC 输入不能超过 3.3V，所以此传感器按 3V3 供电。",
+          "输出通常反向：越湿，ADC 越低。",
+          "第一次使用先在串口记录空气、干土、湿土数值，再定阈值。"
+        ]
+      },
+      {
+        id: "dht11",
+        icon: "H",
+        name: "DHT11 温湿度传感器",
+        model: "单总线温湿度模块",
+        category: "sensor",
+        power: "3.3V",
+        interface: "单总线数字信号",
+        wire: "3 根 M-F 杜邦线",
+        pins: [
+          ["VCC", "3V3 电源轨", "模块供电"],
+          ["GND", "GND 电源轨", "共地"],
+          ["DATA / S", "GPIO15", "数字信号"]
+        ],
+        notes: [
+          "裸 DHT11 需要 4.7k-10k 上拉电阻，模块板通常已经带上拉。",
+          "读取间隔不要太快，建议 1 秒以上。"
+        ]
+      },
+      {
+        id: "hcsr04",
+        icon: "↔",
+        name: "HC-SR04 超声波测距",
+        model: "4 引脚，2-400cm",
+        category: "sensor",
+        power: "5V",
+        interface: "Trig / Echo",
+        wire: "4 根 M-F 杜邦线；Echo 建议加分压",
+        pins: [
+          ["VCC", "5V 电源轨", "模块供电"],
+          ["GND", "GND 电源轨", "共地"],
+          ["TRIG", "GPIO15", "触发输出"],
+          ["ECHO", "GPIO16", "回波输入，需降到 3.3V"]
+        ],
+        notes: [
+          "Echo 是 5V 电平，不能直接进 ESP32；用 1k/2k 或 10k/20k 分压。",
+          "测距时模块正前方要留出开阔空间。"
+        ]
+      },
+      {
+        id: "pir",
+        icon: "◉",
+        name: "HC-SR501 人体红外",
+        model: "PIR，可调延时 / 距离",
+        category: "sensor",
+        power: "5V",
+        interface: "数字输出",
+        wire: "3 根 M-F 杜邦线",
+        pins: [
+          ["VCC", "5V 电源轨", "模块供电"],
+          ["GND", "GND 电源轨", "共地"],
+          ["OUT", "GPIO17", "有人时输出高电平"]
+        ],
+        notes: [
+          "上电后需要几十秒稳定时间。",
+          "OUT 通常是 3.3V 逻辑，可直接接 ESP32 输入。"
+        ]
+      },
+      {
+        id: "ldr-module",
+        icon: "☼",
+        name: "光敏传感器模块",
+        model: "AO / DO 双输出，可调灵敏度",
+        category: "sensor",
+        power: "3.3V",
+        interface: "模拟或数字",
+        wire: "3-4 根 M-F 杜邦线",
+        pins: [
+          ["VCC", "3V3 电源轨", "模块供电"],
+          ["GND", "GND 电源轨", "共地"],
+          ["AO", "GPIO1", "模拟光强"],
+          ["DO", "GPIO18", "阈值数字输出，可选"]
+        ],
+        notes: [
+          "只需要亮/暗判断时接 DO；需要光强变化时接 AO。",
+          "用小螺丝刀调模块电位器可改变 DO 阈值。"
+        ]
+      },
+      {
+        id: "joystick",
+        icon: "✚",
+        name: "摇杆模块",
+        model: "VRX / VRY / SW",
+        category: "input",
+        power: "3.3V",
+        interface: "2 路 ADC + 1 路按键",
+        wire: "5 根 M-F 杜邦线",
+        pins: [
+          ["VCC", "3V3 电源轨", "模块供电"],
+          ["GND", "GND 电源轨", "共地"],
+          ["VRX", "GPIO1", "X 轴模拟输入"],
+          ["VRY", "GPIO2", "Y 轴模拟输入"],
+          ["SW", "GPIO15", "按键输入，建议开启上拉"]
+        ],
+        notes: [
+          "摇杆中位值不一定正好在 ADC 中间，需要软件校准死区。",
+          "SW 常见按下为低电平。"
+        ]
+      },
+      {
+        id: "keypad",
+        icon: "▦",
+        name: "4x4 矩阵键盘",
+        model: "硬按键或薄膜键盘，8 引脚",
+        category: "input",
+        power: "无需 VCC",
+        interface: "4 行 + 4 列 GPIO",
+        wire: "8 根 M-F 杜邦线",
+        pins: [
+          ["R1", "GPIO4", "第 1 行"],
+          ["R2", "GPIO5", "第 2 行"],
+          ["R3", "GPIO6", "第 3 行"],
+          ["R4", "GPIO7", "第 4 行"],
+          ["C1", "GPIO15", "第 1 列"],
+          ["C2", "GPIO16", "第 2 列"],
+          ["C3", "GPIO17", "第 3 列"],
+          ["C4", "GPIO18", "第 4 列"]
+        ],
+        notes: [
+          "不同键盘排线顺序可能不同，先用万用表或示例程序确认行列。",
+          "矩阵键盘占用 GPIO 多，复杂项目建议配合 PCF8574 扩展。"
+        ]
+      },
+      {
+        id: "tm1637",
+        icon: "88",
+        name: "4 位数码管模块",
+        model: "TM1637，CLK / DIO 两线",
+        category: "display",
+        power: "3.3V 或 5V",
+        interface: "TM1637 两线协议",
+        wire: "4 根 M-F 杜邦线",
+        pins: [
+          ["VCC", "3V3 电源轨", "模块供电"],
+          ["GND", "GND 电源轨", "共地"],
+          ["CLK", "GPIO6", "时钟"],
+          ["DIO", "GPIO7", "数据"]
+        ],
+        notes: [
+          "3.3V 通常能亮，只是亮度可能低于 5V。",
+          "CLK/DIO 不是 I2C，可用普通数字 GPIO。"
+        ]
+      },
+      {
+        id: "max7219",
+        icon: "8×8",
+        name: "8x8 点阵屏",
+        model: "MAX7219 驱动",
+        category: "display",
+        power: "5V",
+        interface: "SPI-like DIN / CLK / CS",
+        wire: "5 根 M-F 杜邦线",
+        pins: [
+          ["VCC", "5V 电源轨", "模块供电"],
+          ["GND", "GND 电源轨", "共地"],
+          ["DIN", "GPIO12", "数据输入"],
+          ["CLK", "GPIO13", "时钟"],
+          ["CS", "GPIO10", "片选"]
+        ],
+        notes: [
+          "点阵全亮电流较大，建议单独 5V 供电并与 ESP32 共地。",
+          "多个 MAX7219 可 DIN/DOUT 级联。"
+        ]
+      },
+      {
+        id: "rc522",
+        icon: "RF",
+        name: "RC522 RFID 读写模块",
+        model: "13.56MHz，SPI",
+        category: "input",
+        power: "3.3V",
+        interface: "SPI",
+        wire: "7 根 M-F 杜邦线",
+        pins: [
+          ["3.3V", "3V3 电源轨", "模块供电，不能接 5V"],
+          ["GND", "GND 电源轨", "共地"],
+          ["SDA / SS", "GPIO10", "SPI 片选"],
+          ["SCK", "GPIO13", "SPI 时钟"],
+          ["MOSI", "GPIO12", "SPI 主出从入"],
+          ["MISO", "GPIO14", "SPI 主入从出"],
+          ["RST", "GPIO11", "复位"]
+        ],
+        notes: [
+          "RC522 只能接 3.3V，5V 可能损坏模块。",
+          "天线附近不要贴金属物，会影响读卡距离。"
+        ]
+      },
+      {
+        id: "servo",
+        icon: "↻",
+        name: "SG90 微型舵机",
+        model: "PWM，0-180 度",
+        category: "actuator",
+        power: "外部 5V 更稳",
+        interface: "PWM",
+        wire: "3 根 M-F 杜邦线；供电线可接面包板电源模块",
+        pins: [
+          ["棕 / 黑 GND", "GND 电源轨", "舵机地线，必须和 ESP32 共地"],
+          ["红 VCC", "5V 电源轨", "舵机供电"],
+          ["橙 / 黄 SIG", "GPIO18", "PWM 控制信号"]
+        ],
+        notes: [
+          "不要长期从 ESP32 3V3 给舵机供电，容易复位或烧板。",
+          "外部 5V 供电时，外部电源 GND 必须接 ESP32 GND。"
+        ]
+      },
+      {
+        id: "stepper",
+        icon: "⟳",
+        name: "28BYJ-48 步进电机",
+        model: "5VDC + ULN2003 驱动板",
+        category: "actuator",
+        power: "5V",
+        interface: "4 路数字输出",
+        wire: "4 根信号线 + 驱动板电源；电机插白色座",
+        pins: [
+          ["ULN2003 +", "5V 电源轨", "驱动板供电"],
+          ["ULN2003 -", "GND 电源轨", "共地"],
+          ["IN1", "GPIO4", "相位 1"],
+          ["IN2", "GPIO5", "相位 2"],
+          ["IN3", "GPIO6", "相位 3"],
+          ["IN4", "GPIO7", "相位 4"]
+        ],
+        notes: [
+          "电机插到 ULN2003 白色插座，不要直接接 ESP32。",
+          "步进电机工作电流比传感器大，建议使用面包板电源模块。"
+        ]
+      },
+      {
+        id: "relay",
+        icon: "⏻",
+        name: "5V 单路继电器模块",
+        model: "CNT1，低电平触发",
+        category: "actuator",
+        power: "5V",
+        interface: "数字输出",
+        wire: "3 根控制线；高压侧另接 COM/NO/NC",
+        pins: [
+          ["VCC", "5V 电源轨", "模块供电"],
+          ["GND", "GND 电源轨", "共地"],
+          ["IN", "GPIO17", "低电平触发"]
+        ],
+        notes: [
+          "继电器高压端 COM/NO/NC 和 ESP32 低压端是两套接线，制作前必须断电。",
+          "如果控制交流电，外壳、绝缘和保险丝都要单独考虑。"
+        ]
+      },
+      {
+        id: "buzzer",
+        icon: "♪",
+        name: "有源蜂鸣器模块",
+        model: "POWERFUL，低电平触发",
+        category: "actuator",
+        power: "3.3V / 5V",
+        interface: "数字输出",
+        wire: "3 根 M-F 杜邦线",
+        pins: [
+          ["VCC", "3V3 电源轨", "模块供电"],
+          ["GND", "GND 电源轨", "共地"],
+          ["I/O", "GPIO16", "低电平响"]
+        ],
+        notes: [
+          "有源蜂鸣器只需要高低电平，不需要 PWM 音频。",
+          "若逻辑相反，在代码里反转输出电平。"
+        ]
+      },
+      {
+        id: "rgb",
+        icon: "RGB",
+        name: "RGB LED 模块",
+        model: "3_Colour，共阴 / 共阳需确认",
+        category: "comm",
+        power: "3.3V",
+        interface: "3 路 PWM",
+        wire: "4 根 M-F 杜邦线",
+        pins: [
+          ["GND / VCC", "GND 或 3V3 电源轨", "按模块共阴/共阳丝印确认"],
+          ["R", "GPIO4", "红色 PWM"],
+          ["G", "GPIO5", "绿色 PWM"],
+          ["B", "GPIO6", "蓝色 PWM"]
+        ],
+        notes: [
+          "先确认模块是共阴还是共阳；共阳模块亮灭逻辑相反。",
+          "若是裸 RGB LED，三路必须串限流电阻。"
+        ]
+      }
+    ];
+
+    const categoryNames = {
+      display: "显示",
+      sensor: "传感器",
+      input: "输入 / 交互",
+      actuator: "执行器",
+      comm: "通信 / 转换"
+    };
+
+    const moduleList = document.querySelector("#moduleList");
+    const search = document.querySelector("#search");
+    const category = document.querySelector("#category");
+    let activeId = "st7789";
+
+    function escapeHtml(text) {
+      return String(text).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function renderList() {
+      const q = search.value.trim().toLowerCase();
+      const cat = category.value;
+      const filtered = modules.filter(item => {
+        const text = `${item.name} ${item.model} ${item.interface}`.toLowerCase();
+        return (!q || text.includes(q)) && (cat === "all" || item.category === cat);
+      });
+
+      moduleList.innerHTML = filtered.map(item => `
+        <button class="module-btn ${item.id === activeId ? "active" : ""}" data-id="${item.id}">
+          <span class="icon">${escapeHtml(item.icon)}</span>
+          <span>
+            <span class="name">${escapeHtml(item.name)}</span>
+            <span class="meta">${escapeHtml(categoryNames[item.category])} · ${escapeHtml(item.interface)}</span>
+          </span>
+        </button>
+      `).join("");
+
+      moduleList.querySelectorAll("button").forEach(btn => {
+        btn.addEventListener("click", () => {
+          activeId = btn.dataset.id;
+          render();
+        });
+      });
+    }
+
+    function wireClass(index, pinName) {
+      const text = pinName.toUpperCase();
+      if (text.includes("GND") || text.includes("-") || text.includes("黑") || text.includes("棕")) return "wire-ground";
+      if (text.includes("VCC") || text.includes("3.3") || text.includes("5V") || text.includes("红") || text.includes("+")) return "wire-power";
+      return ["wire-signal", "wire-signal2", "wire-signal3", "wire-signal4", "wire-signal5"][index % 5];
+    }
+
+    function targetPoint(target) {
+      if (target.includes("3V3")) return { x: 320, y: 96 };
+      if (target.includes("5V")) return { x: 320, y: 120 };
+      if (target.includes("GND")) return { x: 320, y: 440 };
+      const match = target.match(/GPIO(\d+)/);
+      if (!match) return { x: 315, y: 270 };
+      const gpio = Number(match[1]);
+      const map = {
+        1: [172, 250], 2: [172, 274], 4: [172, 322], 5: [172, 346],
+        6: [172, 370], 7: [172, 394], 8: [172, 418], 9: [172, 442],
+        10: [172, 466], 11: [172, 490], 12: [172, 514], 13: [172, 538],
+        14: [172, 226], 15: [172, 202], 16: [172, 178], 17: [172, 154],
+        18: [172, 130]
+      };
+      const point = map[gpio] || [172, 106 + (gpio % 15) * 24];
+      return { x: point[0], y: Math.min(point[1], 514) };
+    }
+
+    function renderDiagram(item) {
+      const modulePins = item.pins.map((pin, index) => ({
+        name: pin[0],
+        target: pin[1],
+        x: 665,
+        y: 134 + index * Math.min(36, 290 / Math.max(1, item.pins.length - 1))
+      }));
+
+      const wires = modulePins.map((pin, index) => {
+        const target = targetPoint(pin.target);
+        const midX = 452 + (index % 3) * 26;
+        const cls = wireClass(index, `${pin.name} ${pin.target}`);
+        return `<path class="wire ${cls}" d="M ${target.x} ${target.y} C ${midX} ${target.y}, ${midX} ${pin.y}, ${pin.x} ${pin.y}"/>`;
+      }).join("");
+
+      const modulePinDots = modulePins.map((pin, index) => `
+        <circle cx="${pin.x}" cy="${pin.y}" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+        <text x="${pin.x + 12}" y="${pin.y + 4}" class="pin-label">${escapeHtml(pin.name)}</text>
+      `).join("");
+
+      const breadHoles = Array.from({ length: 22 }, (_, col) => {
+        const x = 288 + col * 17;
+        return `
+          <circle cx="${x}" cy="96" r="3" fill="#dc2626"/>
+          <circle cx="${x}" cy="120" r="3" fill="#ef4444"/>
+          <circle cx="${x}" cy="416" r="3" fill="#1f2937"/>
+          <circle cx="${x}" cy="440" r="3" fill="#111827"/>
+        `;
+      }).join("");
+
+      const espPins = ["18", "17", "16", "15", "14", "1", "2", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13"];
+      const espPinRows = espPins.map((pin, idx) => {
+        const y = 130 + idx * 24;
+        if (y > 514) return "";
+        return `
+          <circle cx="172" cy="${y}" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+          <text x="118" y="${y + 4}" class="pin-label">GPIO${pin}</text>
+        `;
+      }).join("");
+
+      document.querySelector("#diagram").innerHTML = `
+        <rect x="34" y="72" width="160" height="420" rx="14" fill="#233044"/>
+        <rect x="68" y="92" width="92" height="34" rx="5" fill="#111827"/>
+        <text x="114" y="113" text-anchor="middle" fill="#e5e7eb" font-size="12" font-weight="700">ESP32-S3</text>
+        <rect x="86" y="244" width="56" height="74" rx="6" fill="#0f172a"/>
+        <text x="114" y="286" text-anchor="middle" fill="#94a3b8" font-size="10">N16R8</text>
+        <text x="114" y="474" text-anchor="middle" fill="#cbd5e1" font-size="10">USB-C</text>
+        <circle cx="172" cy="96" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+        <text x="124" y="100" class="pin-label">3V3</text>
+        <circle cx="172" cy="514" r="5" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+        <text x="126" y="518" class="pin-label">GND</text>
+        ${espPinRows}
+
+        <rect x="260" y="58" width="460" height="430" rx="10" fill="#fbfdff" stroke="#cbd5e1"/>
+        <text x="490" y="42" text-anchor="middle" class="board-label">830 孔面包板</text>
+        <line x1="284" y1="84" x2="700" y2="84" stroke="#dc2626" stroke-width="3"/>
+        <line x1="284" y1="132" x2="700" y2="132" stroke="#dc2626" stroke-width="3" opacity=".45"/>
+        <line x1="284" y1="404" x2="700" y2="404" stroke="#1f2937" stroke-width="3" opacity=".45"/>
+        <line x1="284" y1="452" x2="700" y2="452" stroke="#1f2937" stroke-width="3"/>
+        <rect x="474" y="156" width="16" height="224" fill="#e2e8f0"/>
+        <text x="302" y="78" class="small-label" fill="#dc2626">+ 电源轨</text>
+        <text x="302" y="472" class="small-label">- 地线轨</text>
+        ${breadHoles}
+        ${Array.from({ length: 12 }, (_, row) => Array.from({ length: 18 }, (_, col) => {
+          const x = 304 + col * 22 + (col > 8 ? 28 : 0);
+          const y = 170 + row * 16;
+          return `<circle cx="${x}" cy="${y}" r="2.4" fill="#cbd5e1"/>`;
+        }).join("")).join("")}
+
+        <rect x="650" y="106" width="210" height="${Math.max(126, modulePins.length * 36 + 48)}" rx="10" fill="#f8fafc" stroke="#94a3b8"/>
+        <text x="755" y="87" text-anchor="middle" class="board-label">${escapeHtml(item.name)}</text>
+        <text x="755" y="127" text-anchor="middle" class="small-label">${escapeHtml(item.interface)}</text>
+        ${wires}
+        ${modulePinDots}
+      `;
+    }
+
+    function renderDetails(item) {
+      document.querySelector("#diagramTitle").textContent = `${item.name} 接线图`;
+      document.querySelector("#moduleName").textContent = item.name;
+      document.querySelector("#categoryChip").textContent = categoryNames[item.category];
+      document.querySelector("#moduleModel").textContent = item.model;
+      document.querySelector("#modulePower").textContent = item.power;
+      document.querySelector("#moduleInterface").textContent = item.interface;
+      document.querySelector("#moduleWire").textContent = item.wire;
+      document.querySelector("#pinRows").innerHTML = item.pins.map(pin => `
+        <tr>
+          <td><code>${escapeHtml(pin[0])}</code></td>
+          <td><code>${escapeHtml(pin[1])}</code></td>
+          <td>${escapeHtml(pin[2])}</td>
+        </tr>
+      `).join("");
+      document.querySelector("#moduleNotes").innerHTML = item.notes.map(note => `<li>${escapeHtml(note)}</li>`).join("");
+      document.querySelector("#buildSteps").innerHTML = [
+        "USB 断开，先在桌面上确认模块丝印，不按线色猜。",
+        "把 ESP32 的 3V3/GND 接到面包板电源轨；需要 5V 的模块再接 5V 轨。",
+        "先接 VCC 和 GND，再按表格接信号线。",
+        "上电前检查是否把 5V 信号直接接进 ESP32 GPIO。"
+      ].map(step => `<li>${step}</li>`).join("");
+    }
+
+    function render() {
+      const item = modules.find(module => module.id === activeId) || modules[0];
+      renderList();
+      renderDetails(item);
+      renderDiagram(item);
+    }
+
+    search.addEventListener("input", renderList);
+    category.addEventListener("change", renderList);
+    render();
+  </script>
+</body>
+</html>

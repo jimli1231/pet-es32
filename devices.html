@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESP32 元器件清单</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --orange: #d29922;
+    --purple: #bc8cff;
+    --red: #f85149;
+    --cyan: #39d353;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header svg { flex-shrink: 0; }
+  header h1 { font-size: 20px; font-weight: 600; letter-spacing: .3px; }
+  header h1 span { color: var(--accent); }
+  .header-meta { margin-left: auto; color: var(--text2); font-size: 13px; }
+  .badge-count {
+    background: var(--accent);
+    color: #000;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: 8px;
+  }
+
+  /* ── Nav tabs ── */
+  nav {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color .15s, border-color .15s;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab .cnt {
+    display: inline-block;
+    background: var(--bg3);
+    border-radius: 10px;
+    padding: 0 6px;
+    font-size: 11px;
+    margin-left: 5px;
+    color: var(--text2);
+  }
+
+  /* ── Main ── */
+  main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 16px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* ── Grid ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color .2s, transform .15s, box-shadow .2s;
+    cursor: default;
+  }
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(88,166,255,.12);
+  }
+  .card-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    background: var(--bg3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+  }
+  .card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .card-body { padding: 14px 16px 16px; }
+  .card-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  .card-model {
+    font-size: 12px;
+    color: var(--accent);
+    font-family: "SFMono-Regular", Consolas, monospace;
+    margin-bottom: 10px;
+  }
+  .card-specs {
+    list-style: none;
+    margin-bottom: 12px;
+  }
+  .card-specs li {
+    font-size: 12px;
+    color: var(--text2);
+    padding: 3px 0;
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  .card-specs li::before {
+    content: '›';
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .card-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .tag-buy  { background: rgba(63,185,80,.15);  color: var(--green);  border: 1px solid rgba(63,185,80,.3); }
+  .tag-kit  { background: rgba(88,166,255,.12); color: var(--accent); border: 1px solid rgba(88,166,255,.3); }
+  .tag-cat  { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+
+  /* ── All view ── */
+  #section-all .group { margin-bottom: 36px; }
+  #section-all .group-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #section-all .group-label span { font-size: 18px; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 32px;
+    color: var(--text2);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="1.8">
+    <rect x="4" y="4" width="16" height="16" rx="2"/>
+    <path d="M9 9h6M9 12h6M9 15h4"/>
+    <path d="M4 9H2M4 12H2M4 15H2M20 9h2M20 12h2M20 15h2"/>
+  </svg>
+  <h1>ESP32 <span>元器件</span> 清单</h1>
+  <div class="header-meta">
+    Keywish UNO进阶版 · ESP32-S3-N16R8 · 单独采购
+    <span class="badge-count">42 类</span>
+  </div>
+</header>
+
+<nav id="nav">
+  <div class="tab active"     data-sec="all">全部</div>
+  <div class="tab" data-sec="mcu">主控 & 核心板 <span class="cnt">2</span></div>
+  <div class="tab" data-sec="sensor">传感器 <span class="cnt">12</span></div>
+  <div class="tab" data-sec="display">显示 <span class="cnt">5</span></div>
+  <div class="tab" data-sec="input">输入 / 交互 <span class="cnt">4</span></div>
+  <div class="tab" data-sec="actuator">执行器 <span class="cnt">7</span></div>
+  <div class="tab" data-sec="comm">通信 / 转换 <span class="cnt">4</span></div>
+  <div class="tab" data-sec="power">电源 <span class="cnt">3</span></div>
+  <div class="tab" data-sec="misc">基础耗材 <span class="cnt">5</span></div>
+</nav>
+
+<main>
+
+<!-- ══════════════ ALL ══════════════ -->
+<div id="section-all" class="section active"></div>
+
+<!-- ══════════════ MCU ══════════════ -->
+<div id="section-mcu" class="section">
+  <div class="section-title">主控 &amp; 核心板</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-img"><img src="devices/68c6552aef91c1aaf67bb89fc098b833.jpg" alt="ESP32-S3"></div>
+      <div class="card-body">
+        <div class="card-name">ESP32-S3 开发板</div>
+        <div class="card-model">ESP32-S3-N16R8</div>
+        <ul class="card-specs">
+          <li>Xtensa LX7 双核，240 MHz</li>
+          <li>16 MB Flash · 8 MB PSRAM</li>
+          <li>Wi-Fi 802.11 b/g/n · BLE 5.0</li>
+          <li>双 USB-C 口（USB & UART）</li>
+          <li>板载 RGB WS2812 LED</li>
+          <li>RST / BOOT 按键</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-buy">单独购买</span>
+          <span class="tag tag-cat">主控</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🟢</div>
+      <div class="card-body">
+        <div class="card-name">Arduino UNO R3</div>
+        <div class="card-model">ATmega328P · 16 MHz</div>
+        <ul class="card-specs">
+          <li>14 路数字 IO（含 6 路 PWM）</li>
+          <li>6 路模拟输入，10 bit ADC</li>
+          <li>USB-B 接口，含数据线</li>
+          <li>工作电压 5V，支持 7~12V 外接</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">主控</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ SENSOR ══════════════ -->
+<div id="section-sensor" class="section">
+  <div class="section-title">传感器</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🌡️</div>
+      <div class="card-body">
+        <div class="card-name">温湿度传感器</div>
+        <div class="card-model">SHT30</div>
+        <ul class="card-specs">
+          <li>I2C 接口，地址 0x44 / 0x45</li>
+          <li>温度精度 ±0.3°C，湿度 ±2%RH</li>
+          <li>供电 3.3V / 5V 兼容</li>
+          <li>引脚：SDA / SCL / VCC / GND</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-buy">单独购买</span>
+          <span class="tag tag-cat">I2C</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🌡️</div>
+      <div class="card-body">
+        <div class="card-name">温湿度传感器</div>
+        <div class="card-model">DHT11</div>
+        <ul class="card-specs">
+          <li>单总线协议，DATA 引脚</li>
+          <li>温度 0~50°C ±2°C，湿度 20~90%RH ±5%</li>
+          <li>供电 3.3V / 5V，采样 1Hz</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">单总线</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">📡</div>
+      <div class="card-body">
+        <div class="card-name">超声波测距模块</div>
+        <div class="card-model">HC-SR04</div>
+        <ul class="card-specs">
+          <li>测量范围 2 ~ 400 cm</li>
+          <li>引脚：VCC / TRIG / ECHO / GND</li>
+          <li>供电 5V，精度 3mm</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">数字</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🚶</div>
+      <div class="card-body">
+        <div class="card-name">人体红外传感器</div>
+        <div class="card-model">HC-SR501（PIR）</div>
+        <ul class="card-specs">
+          <li>检测距离 3~7m（可调）</li>
+          <li>延时时间可调，感应角 120°</li>
+          <li>供电 5~20V，输出 3.3V 高电平</li>
+          <li>带菲涅尔透镜</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">数字</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img"><img src="devices/f25c00d6e3579511867cc2ce3d4cf78d.jpg" alt="土壤湿度传感器"></div>
+      <div class="card-body">
+        <div class="card-name">电容式土壤湿度传感器</div>
+        <div class="card-model">Capacitive Soil Moisture Sensor V2.0.0（HW-390）</div>
+        <ul class="card-specs">
+          <li>电容原理，无腐蚀问题</li>
+          <li>引脚：AOUT / VCC / GND</li>
+          <li>白色 JST 3-pin 接头</li>
+          <li>输出模拟电压值</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-buy">单独购买</span>
+          <span class="tag tag-cat">模拟</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🌱</div>
+      <div class="card-body">
+        <div class="card-name">土壤湿度传感器（电阻式）</div>
+        <div class="card-model">叉形探针</div>
+        <ul class="card-specs">
+          <li>电阻原理，模拟输出</li>
+          <li>引脚：VCC / GND / AO / DO</li>
+          <li>可调灵敏度（DO 数字输出）</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">模拟</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img"><img src="devices/02c6cd052dc970cb477ae7ae576bf0da.jpg" alt="LDR"></div>
+      <div class="card-body">
+        <div class="card-name">光敏电阻（LDR）</div>
+        <div class="card-model">5 mm 圆形</div>
+        <ul class="card-specs">
+          <li>亮阻 ≈ 10kΩ，暗阻 ≥ 1MΩ</li>
+          <li>2 引脚，需配分压电阻使用</li>
+          <li>袋装多个</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-buy">单独购买</span>
+          <span class="tag tag-cat">模拟</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">💡</div>
+      <div class="card-body">
+        <div class="card-name">光敏传感器模块</div>
+        <div class="card-model">LDR 模块，带比较器</div>
+        <ul class="card-specs">
+          <li>AO 模拟输出 + DO 数字输出</li>
+          <li>灵敏度电位器可调</li>
+          <li>供电 3.3V / 5V</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">模拟 / 数字</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🎙️</div>
+      <div class="card-body">
+        <div class="card-name">声音传感器模块</div>
+        <div class="card-model">驻极体麦克风</div>
+        <ul class="card-specs">
+          <li>DO 数字输出，可调阈值</li>
+          <li>供电 3.3V / 5V</li>
+          <li>引脚：VCC / GND / DO</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">数字</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🔥</div>
+      <div class="card-body">
+        <div class="card-name">火焰传感器模块</div>
+        <div class="card-model">红外火焰检测</div>
+        <ul class="card-specs">
+          <li>检测波长 760~1100 nm</li>
+          <li>感应角度约 60°</li>
+          <li>DO 数字 + AO 模拟输出</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">模拟 / 数字</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">⚡</div>
+      <div class="card-body">
+        <div class="card-name">红外避障传感器</div>
+        <div class="card-model">IR 对管，LM393 比较器</div>
+        <ul class="card-specs">
+          <li>可调检测距离 2~40cm</li>
+          <li>DO 数字输出，障碍物时低电平</li>
+          <li>供电 3.3V / 5V</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">数字</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🕹️</div>
+      <div class="card-body">
+        <div class="card-name">摇杆模块</div>
+        <div class="card-model">双轴模拟 + 按键</div>
+        <ul class="card-specs">
+          <li>VRX / VRY 模拟输出（0~1023）</li>
+          <li>SW 按键，按下为低电平</li>
+          <li>供电 5V，中心值约 512</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">模拟</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ DISPLAY ══════════════ -->
+<div id="section-display" class="section">
+  <div class="section-title">显示</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-img"><img src="devices/ffc83a75409a3aaee9c38c34c58b70b0.jpg" alt="TFT LCD"></div>
+      <div class="card-body">
+        <div class="card-name">TFT LCD 彩屏</div>
+        <div class="card-model">~2" SPI · ST7789 / ILI9341</div>
+        <ul class="card-specs">
+          <li>240×320 分辨率，65K 色</li>
+          <li>SPI 接口，蓝色 PCB，8 引脚</li>
+          <li>引脚：VCC/GND/CS/RESET/DC/MOSI/SCK/LED</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-buy">单独购买</span>
+          <span class="tag tag-cat">SPI</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🖥️</div>
+      <div class="card-body">
+        <div class="card-name">LCD 1602 液晶屏</div>
+        <div class="card-model">16×2 字符 + I2C 转接板</div>
+        <ul class="card-specs">
+          <li>I2C 地址 0x27（PCF8574）</li>
+          <li>仅需 4 线：VCC/GND/SDA/SCL</li>
+          <li>供电 5V，蓝色背光可调</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">I2C</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🔢</div>
+      <div class="card-body">
+        <div class="card-name">4 位数码管</div>
+        <div class="card-model">TM1637</div>
+        <ul class="card-specs">
+          <li>2 线接口：CLK / DIO</li>
+          <li>中间冒号，适合时钟显示</li>
+          <li>亮度可调，供电 3.3V / 5V</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">2-Wire</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">⬛</div>
+      <div class="card-body">
+        <div class="card-name">8×8 点阵屏</div>
+        <div class="card-model">MAX7219 驱动</div>
+        <ul class="card-specs">
+          <li>SPI 接口，可级联多块</li>
+          <li>引脚：VCC/GND/DIN/CS/CLK</li>
+          <li>64 个独立 LED，亮度可调</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">SPI</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">📺</div>
+      <div class="card-body">
+        <div class="card-name">OLED 显示屏</div>
+        <div class="card-model">0.96" I2C · SSD1306</div>
+        <ul class="card-specs">
+          <li>128×64 像素，蓝色</li>
+          <li>I2C 地址 0x3C</li>
+          <li>供电 3.3V / 5V，4 引脚</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">I2C</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ INPUT ══════════════ -->
+<div id="section-input" class="section">
+  <div class="section-title">输入 / 交互</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">⌨️</div>
+      <div class="card-body">
+        <div class="card-name">4×4 矩阵键盘（硬按键）</div>
+        <div class="card-model">0-9 + A/B/C/D/*/# · 16 键</div>
+        <ul class="card-specs">
+          <li>8 引脚（4行 + 4列）扫描</li>
+          <li>供电无需，纯开关矩阵</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">GPIO</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">📋</div>
+      <div class="card-body">
+        <div class="card-name">薄膜键盘</div>
+        <div class="card-model">4×4 柔性</div>
+        <ul class="card-specs">
+          <li>8 引脚 FPC 接口</li>
+          <li>防水，可贴附曲面</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">GPIO</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🔴</div>
+      <div class="card-body">
+        <div class="card-name">大红按键模块</div>
+        <div class="card-model">带底座，瞬时开关</div>
+        <ul class="card-specs">
+          <li>数字输入，按下低电平</li>
+          <li>供电 3.3V / 5V，带 LED 指示</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">数字</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">📶</div>
+      <div class="card-body">
+        <div class="card-name">RFID 读写模块</div>
+        <div class="card-model">RC522 · 13.56 MHz</div>
+        <ul class="card-specs">
+          <li>SPI 接口，读写距离 ≈ 3cm</li>
+          <li>附 IC 白卡 + 钥匙扣 TAG</li>
+          <li>供电 3.3V，引脚 7 线</li>
+          <li>SDA/SCK/MOSI/MISO/IRQ/GND/RST/3.3V</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">SPI</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ ACTUATOR ══════════════ -->
+<div id="section-actuator" class="section">
+  <div class="section-title">执行器</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-img"><img src="devices/1f692e93e1aedeee8b4648a330ca53d5.jpg" alt="SG90"></div>
+      <div class="card-body">
+        <div class="card-name">微型舵机 × 2</div>
+        <div class="card-model">SG90</div>
+        <ul class="card-specs">
+          <li>转动范围 0~180°，PWM 控制</li>
+          <li>供电 4.8~6V，扭矩 1.8kg·cm</li>
+          <li>三线：棕(GND) / 红(VCC) / 橙(PWM)</li>
+          <li>附白色塑料安装件</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-buy">单独购买</span>
+          <span class="tag tag-cat">PWM</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">⚙️</div>
+      <div class="card-body">
+        <div class="card-name">步进电机 + 驱动板</div>
+        <div class="card-model">28BYJ-48 + ULN2003</div>
+        <ul class="card-specs">
+          <li>5V，4 相 5 线，减速比 1:64</li>
+          <li>步距角 5.625°/64 = 0.088°</li>
+          <li>ULN2003 驱动板，4 路 IN 控制</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">GPIO×4</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🔧</div>
+      <div class="card-body">
+        <div class="card-name">直流减速电机</div>
+        <div class="card-model">小型 TT 电机</div>
+        <ul class="card-specs">
+          <li>工作电压 3~6V</li>
+          <li>需搭配电机驱动模块（L298N / L9110）</li>
+          <li>可配套风扇叶片使用</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">PWM</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🌀</div>
+      <div class="card-body">
+        <div class="card-name">风扇叶片</div>
+        <div class="card-model">蓝色螺旋桨</div>
+        <ul class="card-specs">
+          <li>配套直流电机使用</li>
+          <li>轴孔适配 TT 电机轴径</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">附件</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🔌</div>
+      <div class="card-body">
+        <div class="card-name">继电器模块</div>
+        <div class="card-model">5V 单路，CNT1</div>
+        <ul class="card-specs">
+          <li>低电平触发，光耦隔离</li>
+          <li>最大 10A / 250VAC · 10A / 30VDC</li>
+          <li>引脚：VCC / GND / IN</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">数字</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🔔</div>
+      <div class="card-body">
+        <div class="card-name">有源蜂鸣器模块</div>
+        <div class="card-model">POWERFUL · 5V</div>
+        <ul class="card-specs">
+          <li>低电平触发，内置振荡电路</li>
+          <li>固定频率，无需 PWM</li>
+          <li>引脚：VCC / GND / I/O</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">数字</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img"><img src="devices/10735e3abc47c9a535845da060d1eaa7.jpg" alt="Speaker"></div>
+      <div class="card-body">
+        <div class="card-name">小扬声器</div>
+        <div class="card-model">~40 mm · 圆形</div>
+        <ul class="card-specs">
+          <li>带永磁铁，JST 2-pin 白色接头</li>
+          <li>红线(+) / 黑线(-)</li>
+          <li>需搭配功放模块（MAX98357 等）</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-buy">单独购买</span>
+          <span class="tag tag-cat">模拟音频</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ COMM ══════════════ -->
+<div id="section-comm" class="section">
+  <div class="section-title">通信 / 转换</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-img"><img src="devices/03538d7a6d1032bffe67cf60e9fd7a42.jpg" alt="USB TTL"></div>
+      <div class="card-body">
+        <div class="card-name">USB 转 TTL 串口</div>
+        <div class="card-model">MH · CH340 / PL2303</div>
+        <ul class="card-specs">
+          <li>引脚：GND / RXD / TXD / 3V3 / VCC(5V)</li>
+          <li>黄色跳帽切换 3.3V / 5V 逻辑电平</li>
+          <li>USB-A 插头，直连电脑</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-buy">单独购买</span>
+          <span class="tag tag-cat">UART</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🔀</div>
+      <div class="card-body">
+        <div class="card-name">74HC595 移位寄存器</div>
+        <div class="card-model">DIP-16</div>
+        <ul class="card-specs">
+          <li>串入并出（SIPO），8 路输出</li>
+          <li>3 线 SPI 控制：DS/SHCP/STCP</li>
+          <li>可级联，无限扩展 IO</li>
+          <li>供电 2~6V，输出 ±35mA</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">SPI</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🔗</div>
+      <div class="card-body">
+        <div class="card-name">I2C 扩展模块</div>
+        <div class="card-model">PCF8574</div>
+        <ul class="card-specs">
+          <li>8 路 GPIO 扩展，I2C 接口</li>
+          <li>地址 0x20~0x27（A0~A2 跳线选择）</li>
+          <li>供电 2.5~6V</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">I2C</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🌈</div>
+      <div class="card-body">
+        <div class="card-name">RGB LED 模块</div>
+        <div class="card-model">3_Colour</div>
+        <ul class="card-specs">
+          <li>3 路独立 PWM 控制</li>
+          <li>共阴极（引脚：R/G/B/GND）</li>
+          <li>供电 3.3V / 5V</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">PWM</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ POWER ══════════════ -->
+<div id="section-power" class="section">
+  <div class="section-title">电源</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-img"><img src="devices/9bd2e4e8c716a1e8952b089b496bb2c7.jpg" alt="LiPo"></div>
+      <div class="card-body">
+        <div class="card-name">锂聚合物电池</div>
+        <div class="card-model">523450 · 1000 mAh</div>
+        <ul class="card-specs">
+          <li>标称电压 3.7V，满充 4.2V</li>
+          <li>容量 3.7 Wh</li>
+          <li>红(+) / 黑(-) 裸线引出</li>
+          <li>需搭配充电管理模块（TP4056 等）</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-buy">单独购买</span>
+          <span class="tag tag-cat">LiPo</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img"><img src="devices/190ac53e86538a52afdf7c991478d0f5.jpg" alt="HW-131"></div>
+      <div class="card-body">
+        <div class="card-name">面包板电源模块</div>
+        <div class="card-model">HW-131</div>
+        <ul class="card-specs">
+          <li>USB-A 或 DC 桶形插座（7~12V）供电</li>
+          <li>双路独立输出：3.3V / 5V / OFF 可选</li>
+          <li>绿色电源指示灯，电源开关</li>
+          <li>直插面包板两侧导轨</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-buy">单独购买</span>
+          <span class="tag tag-cat">线性稳压</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🔋</div>
+      <div class="card-body">
+        <div class="card-name">9V 电池扣</div>
+        <div class="card-model">带 DC 5.5/2.1mm 插头</div>
+        <ul class="card-specs">
+          <li>配套 Arduino UNO 供电</li>
+          <li>接 DC 插座，正极内芯</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">电池</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ MISC ══════════════ -->
+<div id="section-misc" class="section">
+  <div class="section-title">基础耗材</div>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-img"><img src="devices/a112baafb4ce84329750d265f0f96b2f.jpg" alt="Breadboard"></div>
+      <div class="card-body">
+        <div class="card-name">面包板 830 孔</div>
+        <div class="card-model">全尺寸 × 2 块</div>
+        <ul class="card-specs">
+          <li>白色，红/蓝电源导轨</li>
+          <li>单独购买 + UNO套件各一块</li>
+          <li>无焊接，孔距 2.54mm</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-buy">单独购买</span>
+          <span class="tag tag-kit">UNO套件</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img"><img src="devices/9f48759a1178ac2899e23ca5205dab2f.jpg" alt="Resistors"></div>
+      <div class="card-body">
+        <div class="card-name">金属膜电阻套装</div>
+        <div class="card-model">多阻值 · 1/4W · ±1%</div>
+        <ul class="card-specs">
+          <li>蓝色本体，5 色环标识</li>
+          <li>条装，多种常用阻值</li>
+          <li>1/4W 功率，精密型</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-buy">单独购买</span>
+          <span class="tag tag-cat">无源元件</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">🌈</div>
+      <div class="card-body">
+        <div class="card-name">杜邦线套装</div>
+        <div class="card-model">M-M · M-F · F-F</div>
+        <ul class="card-specs">
+          <li>彩虹色，多规格（10/20/30cm）</li>
+          <li>2.54mm 间距，镀锡铜芯</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">连接线</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">📌</div>
+      <div class="card-body">
+        <div class="card-name">排针</div>
+        <div class="card-model">直插 / 弯折 · 2.54mm</div>
+        <ul class="card-specs">
+          <li>单排 40P，可折断按需使用</li>
+          <li>直插 + 弯折 L 型各若干</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">连接件</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img" style="font-size:52px;">📊</div>
+      <div class="card-body">
+        <div class="card-name">电阻色环参考卡</div>
+        <div class="card-model">4色环 / 5色环</div>
+        <ul class="card-specs">
+          <li>4色环与5色环完整对照表</li>
+          <li>含各色环数值说明</li>
+        </ul>
+        <div class="card-footer">
+          <span class="tag tag-kit">UNO套件</span>
+          <span class="tag tag-cat">参考工具</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</main>
+
+<footer>ESP32-S3 · Keywish UNO进阶版 · 共 42 类元器件</footer>
+
+<script>
+// ── Tab switching ──
+const tabs = document.querySelectorAll('.tab');
+const sections = document.querySelectorAll('.section');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const sec = tab.dataset.sec;
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    sections.forEach(s => s.classList.remove('active'));
+    document.getElementById('section-' + sec).classList.add('active');
+  });
+});
+
+// ── Build "all" view by cloning each section's cards ──
+(function buildAll() {
+  const allSection = document.getElementById('section-all');
+  const catMap = [
+    { id: 'section-mcu',      icon: '🧠', label: '主控 & 核心板' },
+    { id: 'section-sensor',   icon: '📡', label: '传感器' },
+    { id: 'section-display',  icon: '🖥️', label: '显示' },
+    { id: 'section-input',    icon: '🎮', label: '输入 / 交互' },
+    { id: 'section-actuator', icon: '⚙️', label: '执行器' },
+    { id: 'section-comm',     icon: '🔗', label: '通信 / 转换' },
+    { id: 'section-power',    icon: '🔋', label: '电源' },
+    { id: 'section-misc',     icon: '🧰', label: '基础耗材' },
+  ];
+
+  catMap.forEach(({ id, icon, label }) => {
+    const src = document.getElementById(id);
+    if (!src) return;
+    const grid = src.querySelector('.grid');
+    if (!grid) return;
+
+    const group = document.createElement('div');
+    group.className = 'group';
+
+    const groupLabel = document.createElement('div');
+    groupLabel.className = 'group-label';
+    groupLabel.innerHTML = `<span>${icon}</span>${label}`;
+    group.appendChild(groupLabel);
+
+    const clonedGrid = grid.cloneNode(true);
+    group.appendChild(clonedGrid);
+    allSection.appendChild(group);
+  });
+})();
+</script>
+</body>
+</html>
