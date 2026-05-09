@@ -31,7 +31,7 @@ uint8_t redOf(uint32_t c) { return (c >> 16) & 0xFF; }
 uint8_t greenOf(uint32_t c) { return (c >> 8) & 0xFF; }
 uint8_t blueOf(uint32_t c) { return c & 0xFF; }
 
-constexpr uint32_t C_BG = rgb(238, 248, 250);
+constexpr uint32_t C_BG = rgb(247, 206, 226);
 constexpr uint32_t C_BG_HAPPY = rgb(255, 209, 228);
 constexpr uint32_t C_SHADOW = rgb(190, 216, 222);
 constexpr uint32_t C_FUR = rgb(255, 242, 222);
@@ -145,22 +145,22 @@ bool digitPixel(int x, int y, int ox, int oy, int digit) {
 
 bool inFrameBorder(int x, int y) {
   // 参考图那种粗黑像素屏幕边框
-  return inRect(x, y, 0, 0, TFT_WIDTH, 8) ||
-         inRect(x, y, 0, TFT_HEIGHT - 8, TFT_WIDTH, 8) ||
-         inRect(x, y, 0, 0, 8, TFT_HEIGHT) ||
-         inRect(x, y, TFT_WIDTH - 8, 0, 8, TFT_HEIGHT);
+  return inRect(x, y, 0, 0, TFT_WIDTH, 7) ||
+         inRect(x, y, 0, TFT_HEIGHT - 7, TFT_WIDTH, 7) ||
+         inRect(x, y, 0, 0, 7, TFT_HEIGHT) ||
+         inRect(x, y, TFT_WIDTH - 7, 0, 7, TFT_HEIGHT);
 }
 
 bool inCatHeadFill(int x, int y) {
-  return inEllipse(x, y, 120, 178, 92, 104) ||
-         inTriangle(x, y, 30, 123, 68, 46, 101, 135) ||
-         inTriangle(x, y, 210, 123, 172, 46, 139, 135);
+  return inEllipse(x, y, 120, 200, 95, 98) ||
+         inTriangle(x, y, 30, 148, 68, 76, 101, 160) ||
+         inTriangle(x, y, 210, 148, 172, 76, 139, 160);
 }
 
 bool inCatHeadOuter(int x, int y) {
-  return inEllipse(x, y, 120, 178, 98, 110) ||
-         inTriangle(x, y, 24, 126, 68, 36, 107, 140) ||
-         inTriangle(x, y, 216, 126, 172, 36, 133, 140);
+  return inEllipse(x, y, 120, 200, 101, 104) ||
+         inTriangle(x, y, 24, 151, 68, 67, 107, 165) ||
+         inTriangle(x, y, 216, 151, 172, 67, 133, 165);
 }
 
 bool spiralEyePixel(int x, int y, int cx, int cy) {
@@ -324,7 +324,7 @@ bool rainOverlayPixel(int x, int y, uint32_t t) {
 
 uint32_t catPixel(int x, int y, int expression) {
   if (inFrameBorder(x, y)) return C_INK;
-  uint32_t bg = rgb(255, 226 - min(y / 10, 18), 238 - min(y / 16, 12));
+  uint32_t bg = rgb(248, 207 - min(y / 28, 6), 229 - min(y / 28, 6));
 
   if (topUiPixel(x, y, expression)) return C_INK;
   if (batteryFillPixel(x, y)) return C_GREEN;
@@ -355,12 +355,12 @@ uint32_t catPixel(int x, int y, int expression) {
   if (inCatHeadOuter(x, y) && !inCatHeadFill(x, y)) return C_INK;
 
   // 脸颊外伸的胡须线
-  if (nearLine(x, y, 55, 174, 23, 163, 1) ||
-      nearLine(x, y, 54, 188, 20, 188, 1) ||
-      nearLine(x, y, 55, 202, 23, 213, 1) ||
-      nearLine(x, y, 185, 174, 217, 163, 1) ||
-      nearLine(x, y, 186, 188, 220, 188, 1) ||
-      nearLine(x, y, 185, 202, 217, 213, 1)) {
+  if (nearLine(x, y, 55, 192, 23, 181, 1) ||
+      nearLine(x, y, 54, 206, 20, 206, 1) ||
+      nearLine(x, y, 55, 220, 23, 231, 1) ||
+      nearLine(x, y, 185, 192, 217, 181, 1) ||
+      nearLine(x, y, 186, 206, 220, 206, 1) ||
+      nearLine(x, y, 185, 220, 217, 231, 1)) {
     return C_INK;
   }
 
@@ -420,41 +420,31 @@ uint32_t catPixel(int x, int y, int expression) {
   }
 
   // 默认鼻子和嘴
-  if (inTriangle(x, y, 110, 181, 130, 181, 120, 194)) return C_NOSE;
-  if (nearLine(x, y, 120, 193, 120, 206, 1)) return C_INK;
+  if (inTriangle(x, y, 110, 199, 130, 199, 120, 212)) return C_NOSE;
+  if (nearLine(x, y, 120, 211, 120, 224, 1)) return C_INK;
 
   // 圆形腮红（HAPPY 是心形腮红，SHY 是斜线腮红，画在 switch 里了，跳过）
   if (expression != EX_HAPPY && expression != EX_SHY &&
-      (inCircle(x, y, 69, 190, 14) || inCircle(x, y, 171, 190, 14))) return C_BLUSH;
+      (inCircle(x, y, 69, 208, 14) || inCircle(x, y, 171, 208, 14))) return C_BLUSH;
 
   // 脸颊深色绒毛纹
-  if (nearLine(x, y, 78, 98, 85, 80, 2) ||
-      nearLine(x, y, 96, 93, 99, 75, 2) ||
-      nearLine(x, y, 162, 98, 155, 80, 2) ||
-      nearLine(x, y, 144, 93, 141, 75, 2)) {
+  if (nearLine(x, y, 108, 78, 108, 68, 2) ||
+      nearLine(x, y, 120, 78, 120, 68, 2) ||
+      nearLine(x, y, 132, 78, 132, 68, 2)) {
     return C_FUR_DARK;
   }
 
   // 耳朵粉色
-  if (inTriangle(x, y, 50, 113, 69, 68, 90, 123)) return C_INNER_EAR;
-  if (inTriangle(x, y, 190, 113, 171, 68, 150, 123)) return C_INNER_EAR;
+  if (inTriangle(x, y, 50, 139, 69, 96, 90, 149)) return C_INNER_EAR;
+  if (inTriangle(x, y, 190, 139, 171, 96, 150, 149)) return C_INNER_EAR;
 
-  // 下巴/肚子白色
-  if (inEllipse(x, y, 120, 211, 60, 50)) return C_WHITE;
-
-  // 脚掌（先于头部填充检查，因为脚的位置落在头部椭圆里）
-  if (inCircle(x, y, 56, 248, 17) || inCircle(x, y, 184, 248, 17)) {
-    if (inCircle(x, y, 56, 255, 9) || inCircle(x, y, 184, 255, 9)) return C_WHITE;
-    return C_FUR;
-  }
+  // 下巴白色
+  if (inEllipse(x, y, 120, 236, 60, 34)) return C_WHITE;
 
   // 头部和耳朵的奶油色填充（兜底）
-  if (inEllipse(x, y, 120, 178, 92, 104)) return C_FUR;
-  if (inTriangle(x, y, 34, 123, 68, 46, 101, 135) ||
-      inTriangle(x, y, 206, 123, 172, 46, 139, 135)) return C_FUR;
-
-  // 地面阴影
-  if (inEllipse(x, y, 120, 282, 76, 12)) return C_SHADOW;
+  if (inEllipse(x, y, 120, 200, 95, 98)) return C_FUR;
+  if (inTriangle(x, y, 34, 148, 68, 76, 101, 160) ||
+      inTriangle(x, y, 206, 148, 172, 76, 139, 160)) return C_FUR;
 
   return bg;
 }
