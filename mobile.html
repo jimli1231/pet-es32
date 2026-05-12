@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>PixelCat 手机控制</title>
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --panel: #ffffff;
+      --ink: #121826;
+      --muted: #667085;
+      --line: #d9e0ea;
+      --blue: #2563eb;
+      --pink: #db2777;
+      --green: #16a34a;
+      --yellow: #facc15;
+      --shadow: 0 14px 36px rgba(18, 24, 38, .1);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    .app {
+      width: min(100%, 520px);
+      margin: 0 auto;
+      padding: calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 18px);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 2px 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 32px;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #9ca3af;
+    }
+
+    .status.online {
+      color: #166534;
+      border-color: #86efac;
+      background: #dcfce7;
+    }
+
+    .status.online .dot { background: var(--green); }
+
+    .card {
+      overflow: hidden;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .card-head strong { font-size: 15px; }
+
+    .card-body { padding: 14px; }
+
+    .wifi-grid {
+      display: grid;
+      grid-template-columns: 78px 1fr;
+      gap: 10px 12px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .label {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    code {
+      padding: 2px 6px;
+      border: 1px solid #dbe3ed;
+      border-radius: 5px;
+      background: #f8fafc;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: .92em;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    button,
+    a.button {
+      display: inline-grid;
+      place-items: center;
+      min-height: 48px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 760;
+      text-decoration: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button.primary,
+    a.primary {
+      border-color: #1d4ed8;
+      background: var(--blue);
+      color: #fff;
+    }
+
+    button.speak {
+      width: 100%;
+      min-height: 76px;
+      border-color: #a16207;
+      background: var(--yellow);
+      color: #422006;
+      font-size: 20px;
+    }
+
+    .expression-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .expr {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 10px;
+      align-items: center;
+      min-height: 60px;
+      text-align: left;
+    }
+
+    .expr.active {
+      border-color: #be185d;
+      background: #fdf2f8;
+      color: #9d174d;
+    }
+
+    .time {
+      display: grid;
+      place-items: center;
+      min-height: 36px;
+      border-radius: 7px;
+      background: #111827;
+      color: #fff;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .expr-name {
+      display: block;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .hint {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .toast {
+      position: fixed;
+      left: 14px;
+      right: 14px;
+      bottom: calc(env(safe-area-inset-bottom) + 14px);
+      max-width: 492px;
+      margin: 0 auto;
+      padding: 12px 14px;
+      border: 1px solid rgba(18, 24, 38, .12);
+      border-radius: 8px;
+      background: rgba(18, 24, 38, .94);
+      color: #fff;
+      font-size: 13px;
+      line-height: 1.4;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity .16s ease, transform .16s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 360px) {
+      .actions,
+      .expression-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>PixelCat</h1>
+      <span id="connectionStatus" class="status"><i class="dot"></i>未连接</span>
+    </header>
+
+    <section class="card">
+      <div class="card-head">
+        <strong>连接设备 Wi-Fi</strong>
+        <button id="copyWifi" type="button">复制</button>
+      </div>
+      <div class="card-body">
+        <div class="wifi-grid">
+          <span class="label">Wi-Fi</span><code>PixelCat-S3</code>
+          <span class="label">密码</span><code>cat12345</code>
+          <span class="label">地址</span><code>192.168.4.1</code>
+        </div>
+        <div class="actions">
+          <button id="checkConnection" class="primary" type="button">检测连接</button>
+          <a class="button" href="http://192.168.4.1/">打开设备页</a>
+        </div>
+        <p class="hint">手机需要先在系统 Wi-Fi 设置里连接 <code>PixelCat-S3</code>。网页不能直接切换手机系统 Wi-Fi，但可以检测和控制已连接的设备。</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <strong>和设备对话</strong>
+        <span id="currentExpression" class="status">12:00 默认</span>
+      </div>
+      <div class="card-body">
+        <button id="speak" class="speak" type="button">让它说话</button>
+        <p id="speakHint" class="hint">ESP32 会通过 UART 发送命令给 SU-03T，再由 SU-03T 驱动喇叭播报。</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <strong>对话命令</strong>
+        <span class="status">SU-03T</span>
+      </div>
+      <div class="card-body">
+        <div class="actions">
+          <button class="voice" type="button" data-cmd="HELLO">打招呼</button>
+          <button class="voice" type="button" data-cmd="FEED">喂食</button>
+          <button class="voice" type="button" data-cmd="SLEEP">睡觉</button>
+          <button class="voice" type="button" data-cmd="LOVE">撒娇</button>
+        </div>
+        <p class="hint">这些按钮会请求 <code>/voice?cmd=...</code>。需要在 SU-03T 工具里配置同名串口命令和播报内容。</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <strong>表情控制</strong>
+        <button id="refresh" type="button">刷新</button>
+      </div>
+      <div class="card-body">
+        <div id="expressionGrid" class="expression-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const DEVICE = "http://192.168.4.1";
+    const expressions = [
+      { id: 0, name: "默认" },
+      { id: 1, name: "开心" },
+      { id: 2, name: "撒娇" },
+      { id: 3, name: "生气" },
+      { id: 4, name: "困了" },
+      { id: 5, name: "饿了" },
+      { id: 6, name: "害羞" },
+      { id: 7, name: "晕晕" }
+    ];
+
+    const connectionStatus = document.querySelector("#connectionStatus");
+    const currentExpression = document.querySelector("#currentExpression");
+    const expressionGrid = document.querySelector("#expressionGrid");
+    const toast = document.querySelector("#toast");
+    let selectedExpression = 0;
+    let toastTimer = 0;
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function setOnline(online) {
+      connectionStatus.classList.toggle("online", online);
+      connectionStatus.innerHTML = `<i class="dot"></i>${online ? "已连接" : "未连接"}`;
+    }
+
+    function setCurrent(expression, name) {
+      selectedExpression = expression;
+      currentExpression.textContent = `12:0${expression} ${name}`;
+      renderExpressions();
+    }
+
+    async function fetchDevice(path, timeoutMs = 1600) {
+      const controller = new AbortController();
+      const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const response = await fetch(`${DEVICE}${path}`, {
+          mode: "cors",
+          cache: "no-store",
+          signal: controller.signal
+        });
+        window.clearTimeout(timer);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        setOnline(true);
+        return response;
+      } catch (error) {
+        window.clearTimeout(timer);
+        setOnline(false);
+        throw error;
+      }
+    }
+
+    async function refreshStatus(showMessage = false) {
+      try {
+        const response = await fetchDevice("/status");
+        const data = await response.json();
+        setCurrent(Number(data.expression), data.name || expressions[Number(data.expression)]?.name || "未知");
+        if (showMessage) showToast("设备已连接");
+      } catch (error) {
+        if (showMessage) showToast("没有连上设备 Wi-Fi：请先连接 PixelCat-S3");
+      }
+    }
+
+    async function setExpression(id) {
+      const item = expressions[id];
+      setCurrent(item.id, item.name);
+      try {
+        const response = await fetchDevice(`/set?id=${id}`);
+        const data = await response.json();
+        setCurrent(Number(data.expression), data.name || item.name);
+        showToast(`已切换：${data.name || item.name}`);
+      } catch (error) {
+        showToast("发送失败：请检查手机是否连接 PixelCat-S3");
+      }
+    }
+
+    async function speak() {
+      try {
+        await fetchDevice(`/speak?id=${selectedExpression}`);
+        showToast("已发送说话指令");
+      } catch (error) {
+        showToast("发送失败：请检查手机是否连接 PixelCat-S3");
+      }
+    }
+
+    async function sendVoiceCommand(command) {
+      try {
+        await fetchDevice(`/voice?cmd=${encodeURIComponent(command)}`);
+        showToast(`已发送：${command}`);
+      } catch (error) {
+        showToast("发送失败：请检查手机是否连接 PixelCat-S3");
+      }
+    }
+
+    function renderExpressions() {
+      expressionGrid.innerHTML = expressions.map(item => `
+        <button class="expr ${item.id === selectedExpression ? "active" : ""}" type="button" data-id="${item.id}">
+          <span class="time">12:0${item.id}</span>
+          <span class="expr-name">${item.name}</span>
+        </button>
+      `).join("");
+      expressionGrid.querySelectorAll("button").forEach(button => {
+        button.addEventListener("click", () => setExpression(Number(button.dataset.id)));
+      });
+    }
+
+    async function copyWifi() {
+      const text = "Wi-Fi: PixelCat-S3\n密码: cat12345\n地址: http://192.168.4.1/";
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("Wi-Fi 信息已复制");
+      } catch (error) {
+        showToast("Wi-Fi：PixelCat-S3，密码：cat12345");
+      }
+    }
+
+    document.querySelector("#copyWifi").addEventListener("click", copyWifi);
+    document.querySelector("#checkConnection").addEventListener("click", () => refreshStatus(true));
+    document.querySelector("#refresh").addEventListener("click", () => refreshStatus(true));
+    document.querySelector("#speak").addEventListener("click", speak);
+    document.querySelectorAll(".voice").forEach(button => {
+      button.addEventListener("click", () => sendVoiceCommand(button.dataset.cmd));
+    });
+
+    renderExpressions();
+    refreshStatus(false);
+  </script>
+</body>
+</html>

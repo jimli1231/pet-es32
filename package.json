@@ -6,6 +6,7 @@
   "scripts": {
     "ports": "arduino-cli board list",
     "compile": "arduino-cli compile --fqbn esp32:esp32:esp32s3 .",
+    "bin": "arduino-cli compile --fqbn esp32:esp32:esp32s3 --export-binaries .",
     "upload": "arduino-cli upload -p /dev/cu.usbserial-1410 --fqbn esp32:esp32:esp32s3 --upload-property upload.speed=115200 .",
     "burn": "npm run upload",
     "flash": "npm run upload",

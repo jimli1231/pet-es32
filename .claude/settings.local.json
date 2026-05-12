@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(arduino-cli compile *)"
+      "Bash(arduino-cli compile *)",
+      "Bash(grep -E '\\\\.\\(log|DS_Store\\)$|^build/|package-lock')"
     ]
   }
 }

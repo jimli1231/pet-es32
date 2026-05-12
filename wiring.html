@@ -362,6 +362,186 @@
       color: #334155;
     }
 
+    .cat-console {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-top: 18px;
+      padding: 16px;
+    }
+
+    .cat-screen {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      image-rendering: pixelated;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffd2e7;
+    }
+
+    .cat-control {
+      display: grid;
+      align-content: start;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .serial-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .serial-row button,
+    .expr-btn {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 720;
+      cursor: pointer;
+    }
+
+    .serial-row button {
+      padding: 0 14px;
+      color: #fff;
+      border-color: #1d4ed8;
+      background: var(--blue);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: var(--muted);
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      font-size: 12px;
+      font-weight: 720;
+    }
+
+    .status-pill.connected {
+      color: #166534;
+      background: #dcfce7;
+      border-color: #86efac;
+    }
+
+    .control-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .expression-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .ota-box {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+
+    .ota-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 780;
+    }
+
+    .ota-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 110px;
+      gap: 10px;
+    }
+
+    .ota-row input {
+      min-width: 0;
+      min-height: 38px;
+      padding: 7px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      font: inherit;
+      font-size: 12px;
+    }
+
+    .ota-row button {
+      min-height: 38px;
+      border: 1px solid #be185d;
+      border-radius: 7px;
+      background: #db2777;
+      color: #fff;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 760;
+      cursor: pointer;
+    }
+
+    .ota-row button:disabled {
+      cursor: not-allowed;
+      opacity: .55;
+    }
+
+    .ota-progress {
+      width: 100%;
+      height: 8px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e2e8f0;
+    }
+
+    .ota-progress span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      background: #db2777;
+      transition: width .15s ease;
+    }
+
+    .expr-btn {
+      display: grid;
+      gap: 2px;
+      place-items: center;
+      padding: 8px 6px;
+      background: #fff7fb;
+    }
+
+    .expr-btn:hover {
+      border-color: rgba(37, 99, 235, .45);
+      background: #eef4ff;
+    }
+
+    .expr-btn.active {
+      color: #fff;
+      border-color: #be185d;
+      background: #db2777;
+    }
+
+    .expr-index {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      opacity: .78;
+    }
+
+    .expr-name {
+      font-size: 13px;
+    }
+
     .step {
       display: grid;
       grid-template-columns: 24px 1fr;
@@ -388,6 +568,7 @@
       .layout { grid-template-columns: 1fr; }
       aside { max-height: 320px; border-right: 0; border-bottom: 1px solid var(--line); }
       .top-grid, .info-grid { grid-template-columns: 1fr; }
+      .cat-console { grid-template-columns: 1fr; }
       .canvas-wrap { height: 520px; overflow-x: auto; }
       svg { min-width: 800px; }
     }
@@ -463,6 +644,39 @@
         </section>
       </div>
 
+      <section class="panel cat-console">
+        <canvas id="catPreview" class="cat-screen" width="320" height="240" aria-label="小猫表情预览"></canvas>
+        <div class="cat-control">
+          <div class="panel-head" style="padding: 0 0 12px; min-height: 0; border-bottom: 1px solid var(--line);">
+            <strong>小猫表情控制台</strong>
+            <span id="expressionLabel" class="chip">12:00 默认</span>
+          </div>
+          <div class="serial-row">
+            <button id="serialConnect" type="button">连接 ESP32</button>
+            <span id="serialStatus" class="status-pill">未连接</span>
+            <button id="wifiToggle" type="button">启用 Wi-Fi 发送</button>
+            <span id="wifiStatus" class="status-pill">Wi-Fi 未启用</span>
+            <button id="speakButton" type="button">让它说话</button>
+            <span id="speakStatus" class="status-pill">SU-03T 待机</span>
+          </div>
+          <div class="control-note">
+            说话功能用 <code>SU-03T</code>：<code>VCC -> 3V3/5V</code>，<code>GND -> GND</code>，<code>SU-03T RX -> GPIO17</code>，<code>SU-03T TX -> GPIO18</code>，喇叭接模块的 <code>SPK</code> 输出。Wi-Fi：连接热点 <code>PixelCat-S3</code>，密码 <code>cat12345</code>。
+          </div>
+          <div id="expressionButtons" class="expression-grid"></div>
+          <div class="ota-box">
+            <div class="ota-title">
+              <span>OTA 远程烧录</span>
+              <span id="otaStatus" class="status-pill">未选择固件</span>
+            </div>
+            <div class="ota-row">
+              <input id="otaFile" type="file" accept=".bin">
+              <button id="otaUpload" type="button" disabled>上传固件</button>
+            </div>
+            <div class="ota-progress" aria-hidden="true"><span id="otaProgress"></span></div>
+          </div>
+        </div>
+      </section>
+
       <div class="info-grid">
         <section class="panel">
           <div class="panel-head"><strong>面包板用法</strong></div>
@@ -530,12 +744,13 @@
         pins: [
           ["VCC", "3V3 电源轨", "模块供电"],
           ["GND", "GND 电源轨", "共地"],
-          ["SDA", "GPIO8", "I2C 数据"],
-          ["SCL", "GPIO9", "I2C 时钟"]
+          ["SDA", "GPIO6", "I2C 数据"],
+          ["SCL", "GPIO7", "I2C 时钟"]
         ],
         notes: [
-          "I2C 模块可以共用 GPIO8/GPIO9，只要地址不冲突。",
-          "如果同时接 TFT，GPIO8 已给 TFT RST，用 I2C 时建议改为 GPIO6/GPIO7。"
+          "当前固件使用 GPIO6/GPIO7，避开 TFT 已占用的 GPIO8。",
+          "屏幕顶部会显示 SHT30 的温度和湿度，例如 24.6C 58%。",
+          "SHT30 常见 I2C 地址是 0x44。"
         ]
       },
       {
@@ -846,6 +1061,39 @@
         ]
       },
       {
+        id: "su03t",
+        icon: "声",
+        name: "SU-03T 语音模块 + 喇叭",
+        model: "离线语音 / 串口 UART / 外接喇叭",
+        category: "comm",
+        power: "按模块丝印供电，优先 3.3V；若板上标 5V 可接 5V",
+        interface: "UART + SPK",
+        wire: "4 根控制线 + 喇叭 2 根线",
+        pins: [
+          ["VCC", "3V3 电源轨", "模块供电；如果你的 SU-03T 板子明确标 5V，再接 5V"],
+          ["GND", "GND 电源轨", "必须和 ESP32 共地"],
+          ["RXD / RX", "GPIO17", "接 ESP32 TX，ESP32 发播放命令给 SU-03T"],
+          ["TXD / TX", "GPIO18", "接 ESP32 RX，SU-03T 识别到语音后发命令给 ESP32"],
+          ["SPK+ / 喇叭+", "喇叭红线", "只接喇叭，不接 ESP32"],
+          ["SPK- / 喇叭-", "喇叭黑线", "只接喇叭，不接 GND，除非模块说明要求"]
+        ],
+        notes: [
+          "TX/RX 要交叉：SU-03T RX 接 ESP32 TX(GPIO17)，SU-03T TX 接 ESP32 RX(GPIO18)。",
+          "喇叭接 SU-03T 的 SPK 输出，不要把喇叭直接接 ESP32 GPIO。",
+          "当前固件串口波特率是 9600。",
+          "网页点“让它说话”时会发送 CAT_DEFAULT、CAT_HAPPY 等文本命令到 SU-03T。",
+          "SU-03T 需要在配套工具里配置串口命令和播报内容；如果命令名不一样，要把代码里的 SU03T_EXPRESSION_COMMANDS 改成你的命令。"
+        ],
+        steps: [
+          "USB 断开，先确认 SU-03T 板子丝印：VCC、GND、RX、TX、SPK+/SPK-。",
+          "先接电源：VCC 接 3V3 或模块要求的 5V，GND 接 ESP32 GND。",
+          "接串口：SU-03T RX 接 GPIO17，SU-03T TX 接 GPIO18。",
+          "喇叭两根线只接 SU-03T 的 SPK+/SPK-。",
+          "烧录固件后，手机连接 PixelCat-S3，打开 http://192.168.4.1/mobile 点“让它说话”。",
+          "在 SU-03T 配套工具里把 CAT_DEFAULT、CAT_HAPPY、CAT_COQUETTISH、CAT_ANGRY、CAT_SLEEPY、CAT_HUNGRY、CAT_SHY、CAT_DIZZY 配成对应播报。"
+        ]
+      },
+      {
         id: "buzzer",
         icon: "♪",
         name: "有源蜂鸣器模块",
@@ -861,7 +1109,16 @@
         ],
         notes: [
           "有源蜂鸣器只需要高低电平，不需要 PWM 音频。",
-          "若逻辑相反，在代码里反转输出电平。"
+          "当前固件使用 GPIO16，打开网页后点“让它说话”会播放当前表情的短音回应。",
+          "若逻辑相反，在代码里反转输出电平。",
+          "小扬声器不能直接接 ESP32 GPIO 播人声；要真人语音，需要另加 I2S 功放模块，例如 MAX98357A。"
+        ],
+        steps: [
+          "USB 断开，确认模块是有源蜂鸣器，丝印通常是 VCC、GND、I/O。",
+          "把 ESP32 的 3V3 接到面包板红色电源轨，GND 接到蓝色电源轨。",
+          "蜂鸣器 VCC 接 3V3 电源轨，GND 接 GND 电源轨，I/O 接 GPIO16。",
+          "烧录固件后，打开本页连接串口，或连接 PixelCat-S3 热点启用 Wi-Fi 发送。",
+          "点击“让它说话”；如果一直响或完全不响，再检查蜂鸣器是否是低电平触发。"
         ]
       },
       {
@@ -894,10 +1151,442 @@
       comm: "通信 / 转换"
     };
 
+    const catExpressions = [
+      { id: 0, name: "默认" },
+      { id: 1, name: "开心" },
+      { id: 2, name: "撒娇" },
+      { id: 3, name: "生气" },
+      { id: 4, name: "困了" },
+      { id: 5, name: "饿了" },
+      { id: 6, name: "害羞" },
+      { id: 7, name: "晕晕" }
+    ];
+
+    const catPreview = document.querySelector("#catPreview");
+    const catCtx = catPreview.getContext("2d");
+    const expressionButtons = document.querySelector("#expressionButtons");
+    const expressionLabel = document.querySelector("#expressionLabel");
+    const serialConnect = document.querySelector("#serialConnect");
+    const serialStatus = document.querySelector("#serialStatus");
+    const wifiToggle = document.querySelector("#wifiToggle");
+    const wifiStatus = document.querySelector("#wifiStatus");
+    const speakButton = document.querySelector("#speakButton");
+    const speakStatus = document.querySelector("#speakStatus");
+    const otaFile = document.querySelector("#otaFile");
+    const otaUpload = document.querySelector("#otaUpload");
+    const otaStatus = document.querySelector("#otaStatus");
+    const otaProgress = document.querySelector("#otaProgress");
+    const textEncoder = new TextEncoder();
+    let selectedExpression = 0;
+    let serialPort = null;
+    let serialWriter = null;
+    let wifiControlEnabled = false;
+
+    function drawDigit(ctx, digit, x, y) {
+      const segs = {
+        0: "abcdef", 1: "bc", 2: "abdeg", 3: "abcdg",
+        4: "bcfg", 5: "acdfg", 6: "acdefg", 7: "abc",
+        8: "abcdefg", 9: "abcdfg"
+      }[digit] || "";
+      const rects = {
+        a: [3, 0, 12, 4], b: [14, 3, 4, 11], c: [14, 16, 4, 11],
+        d: [3, 26, 12, 4], e: [0, 16, 4, 11], f: [0, 3, 4, 11],
+        g: [3, 13, 12, 4]
+      };
+      ctx.fillStyle = "#0c0c0c";
+      [...segs].forEach(seg => {
+        const r = rects[seg];
+        ctx.fillRect(x + r[0], y + r[1], r[2], r[3]);
+      });
+    }
+
+    function drawHeart(ctx, x, y, s, color = "#ef3b65") {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x - s, y - s, s, Math.PI, 0);
+      ctx.arc(x + s, y - s, s, Math.PI, 0);
+      ctx.lineTo(x, y + s * 2.2);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawLine(ctx, x1, y1, x2, y2, width, color = "#0c0c0c") {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    }
+
+    function fillEllipse(ctx, x, y, rx, ry, color) {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function fillTriangle(ctx, ax, ay, bx, by, cx, cy, color) {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(bx, by);
+      ctx.lineTo(cx, cy);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawPixelUi(ctx, expression) {
+      drawDigit(ctx, 1, 29, 22);
+      drawDigit(ctx, 2, 51, 22);
+      fillEllipse(ctx, 75, 31, 3, 3, "#0c0c0c");
+      fillEllipse(ctx, 75, 44, 3, 3, "#0c0c0c");
+      drawDigit(ctx, 0, 81, 22);
+      drawDigit(ctx, expression, 103, 22);
+
+      ctx.fillStyle = "#0c0c0c";
+      ctx.fillRect(252, 22, 45, 5);
+      ctx.fillRect(252, 47, 45, 5);
+      ctx.fillRect(252, 22, 5, 30);
+      ctx.fillRect(292, 22, 5, 30);
+      ctx.fillRect(297, 31, 6, 12);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(258, 28, 32, 18);
+      ctx.fillStyle = "#23d34c";
+      ctx.fillRect(260, 29, 7, 16);
+      ctx.fillRect(270, 29, 7, 16);
+      ctx.fillRect(280, 29, 7, 16);
+    }
+
+    function drawBaseCat(ctx) {
+      const ink = "#0c0c0c";
+      const fur = "#fff2de";
+      const face = "#ffffff";
+      const ear = "#ff8ea0";
+      fillTriangle(ctx, 47, 145, 80, 67, 155, 124, ink);
+      fillTriangle(ctx, 273, 145, 240, 67, 165, 124, ink);
+      fillTriangle(ctx, 58, 142, 82, 78, 145, 122, fur);
+      fillTriangle(ctx, 262, 142, 238, 78, 175, 122, fur);
+      fillEllipse(ctx, 160, 195, 126, 80, ink);
+      fillEllipse(ctx, 160, 194, 116, 70, fur);
+      fillEllipse(ctx, 160, 198, 98, 58, face);
+      fillTriangle(ctx, 68, 130, 88, 90, 126, 116, ear);
+      fillTriangle(ctx, 252, 130, 232, 90, 194, 116, ear);
+      drawLine(ctx, 70, 168, 35, 163, 3);
+      drawLine(ctx, 69, 184, 29, 184, 3);
+      drawLine(ctx, 70, 199, 38, 207, 3);
+      drawLine(ctx, 250, 168, 285, 163, 3);
+      drawLine(ctx, 251, 184, 291, 184, 3);
+      drawLine(ctx, 250, 199, 282, 207, 3);
+      drawLine(ctx, 148, 115, 148, 137, 5, "#db84ac");
+      drawLine(ctx, 160, 115, 160, 140, 5, "#db84ac");
+      drawLine(ctx, 172, 115, 172, 137, 5, "#db84ac");
+    }
+
+    function drawOpenEye(ctx, x, y, sparkle = false) {
+      fillEllipse(ctx, x, y, 26, 27, "#0c0c0c");
+      fillEllipse(ctx, x - 11, y - 11, 6, 6, "#ffffff");
+      fillEllipse(ctx, x - 2, y - 16, 4, 4, "#ffffff");
+      fillEllipse(ctx, x + 12, y + 14, 3, 3, "#ff8da4");
+      if (sparkle) {
+        drawLine(ctx, x - 12, y + 12, x + 12, y - 12, 3, "#ffffff");
+        drawLine(ctx, x - 12, y - 12, x + 12, y + 12, 3, "#ffffff");
+      }
+    }
+
+    function drawMouth(ctx, expression) {
+      if (expression === 1) {
+        drawLine(ctx, 149, 190, 158, 199, 4);
+        drawLine(ctx, 171, 190, 162, 199, 4);
+        fillEllipse(ctx, 160, 202, 8, 10, "#ff7697");
+        return;
+      }
+      if (expression === 5) {
+        drawLine(ctx, 151, 199, 160, 193, 3);
+        drawLine(ctx, 160, 193, 169, 199, 3);
+        return;
+      }
+      drawLine(ctx, 153, 186, 160, 190, 3, "#eb6f85");
+      drawLine(ctx, 167, 186, 160, 190, 3, "#eb6f85");
+      drawLine(ctx, 160, 190, 160, 197, 3, "#eb6f85");
+      drawLine(ctx, 159, 197, 151, 194, 3, "#eb6f85");
+      drawLine(ctx, 161, 197, 169, 194, 3, "#eb6f85");
+    }
+
+    function drawExpressionPreview(expression) {
+      const ctx = catCtx;
+      ctx.imageSmoothingEnabled = false;
+      ctx.clearRect(0, 0, 320, 240);
+      const grad = ctx.createLinearGradient(0, 0, 0, 240);
+      grad.addColorStop(0, "#ffc7e1");
+      grad.addColorStop(1, "#ffdee9");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 320, 240);
+      ctx.fillStyle = "#0c0c0c";
+      ctx.fillRect(0, 0, 320, 10);
+      ctx.fillRect(0, 230, 320, 10);
+      ctx.fillRect(0, 0, 10, 240);
+      ctx.fillRect(310, 0, 10, 240);
+      drawPixelUi(ctx, expression);
+
+      if (expression === 1) {
+        drawHeart(ctx, 50, 205, 13);
+        drawHeart(ctx, 270, 205, 13);
+      }
+      if (expression === 2) {
+        drawHeart(ctx, 47, 78, 8);
+        drawHeart(ctx, 84, 112, 7);
+        drawHeart(ctx, 236, 112, 7);
+        drawHeart(ctx, 272, 205, 13);
+        drawLine(ctx, 277, 80, 277, 108, 4, "#ffce4a");
+        drawLine(ctx, 263, 94, 291, 94, 4, "#ffce4a");
+      }
+      if (expression === 3) {
+        drawLine(ctx, 270, 70, 270, 92, 4, "#f5452b");
+        drawLine(ctx, 258, 82, 282, 82, 4, "#f5452b");
+        drawLine(ctx, 260, 68, 267, 78, 3, "#f5452b");
+        drawLine(ctx, 280, 96, 273, 87, 3, "#f5452b");
+      }
+      if (expression === 4) {
+        drawLine(ctx, 250, 65, 272, 65, 4, "#457ee7");
+        drawLine(ctx, 272, 65, 252, 88, 4, "#457ee7");
+        drawLine(ctx, 252, 88, 276, 88, 4, "#457ee7");
+      }
+
+      drawBaseCat(ctx);
+
+      if (expression === 1) {
+        drawLine(ctx, 87, 164, 103, 146, 6);
+        drawLine(ctx, 103, 146, 121, 164, 6);
+        drawLine(ctx, 199, 164, 217, 146, 6);
+        drawLine(ctx, 217, 146, 233, 164, 6);
+      } else if (expression === 3) {
+        fillTriangle(ctx, 83, 148, 133, 138, 126, 170, "#0c0c0c");
+        fillTriangle(ctx, 237, 148, 187, 138, 194, 170, "#0c0c0c");
+        fillEllipse(ctx, 106, 157, 5, 5, "#ffffff");
+        fillEllipse(ctx, 214, 157, 5, 5, "#ffffff");
+      } else if (expression === 4) {
+        drawLine(ctx, 86, 168, 124, 168, 5);
+        drawLine(ctx, 196, 168, 234, 168, 5);
+      } else if (expression === 6) {
+        drawLine(ctx, 86, 165, 123, 165, 5);
+        drawLine(ctx, 197, 165, 234, 165, 5);
+        drawLine(ctx, 78, 198, 104, 184, 4, "#ff84a0");
+        drawLine(ctx, 86, 203, 112, 189, 4, "#ff84a0");
+        drawLine(ctx, 208, 189, 234, 203, 4, "#ff84a0");
+        drawLine(ctx, 216, 184, 242, 198, 4, "#ff84a0");
+      } else if (expression === 7) {
+        fillEllipse(ctx, 108, 166, 26, 26, "#ffffff");
+        fillEllipse(ctx, 218, 166, 26, 26, "#ffffff");
+        ctx.strokeStyle = "#0c0c0c";
+        ctx.lineWidth = 5;
+        [108, 218].forEach(x => {
+          ctx.beginPath();
+          ctx.arc(x, 166, 18, 0, Math.PI * 1.6);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(x, 166, 8, Math.PI * .2, Math.PI * 2);
+          ctx.stroke();
+        });
+      } else {
+        drawOpenEye(ctx, 108, 166, expression === 2 || expression === 5);
+        drawOpenEye(ctx, 218, 166, expression === 2 || expression === 5);
+      }
+
+      if (expression !== 6) {
+        fillEllipse(ctx, 72, 198, 20, 12, "#ff84a0");
+        fillEllipse(ctx, 248, 198, 20, 12, "#ff84a0");
+      }
+      if (expression === 5) {
+        fillEllipse(ctx, 102, 190, 5, 11, "#40c9eb");
+        fillEllipse(ctx, 218, 190, 5, 11, "#40c9eb");
+        fillEllipse(ctx, 262, 217, 24, 13, "#0c0c0c");
+        fillEllipse(ctx, 262, 217, 20, 10, "#ffffff");
+        fillEllipse(ctx, 262, 218, 11, 5, "#e9a059");
+      }
+      drawMouth(ctx, expression);
+    }
+
+    function renderExpressionButtons() {
+      expressionButtons.innerHTML = catExpressions.map(item => `
+        <button class="expr-btn ${item.id === selectedExpression ? "active" : ""}" type="button" data-expr="${item.id}">
+          <span class="expr-index">12:0${item.id}</span>
+          <span class="expr-name">${escapeHtml(item.name)}</span>
+        </button>
+      `).join("");
+      expressionButtons.querySelectorAll("button").forEach(btn => {
+        btn.addEventListener("click", () => setExpression(Number(btn.dataset.expr), true));
+      });
+      const item = catExpressions[selectedExpression];
+      expressionLabel.textContent = `12:0${item.id} ${item.name}`;
+    }
+
+    async function sendExpression(expression) {
+      if (!serialWriter) return;
+      await serialWriter.write(textEncoder.encode(`${expression}\n`));
+    }
+
+    async function sendWifiExpression(expression) {
+      if (!wifiControlEnabled) return;
+      const controller = new AbortController();
+      const timer = window.setTimeout(() => controller.abort(), 1200);
+      try {
+        const response = await fetch(`http://192.168.4.1/set?id=${expression}`, {
+          signal: controller.signal,
+          mode: "cors"
+        });
+        window.clearTimeout(timer);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        wifiStatus.textContent = "Wi-Fi 已发送";
+        wifiStatus.classList.add("connected");
+      } catch (error) {
+        window.clearTimeout(timer);
+        wifiStatus.textContent = "请先连接 PixelCat-S3";
+        wifiStatus.classList.remove("connected");
+      }
+    }
+
+    async function sendSpeak() {
+      let sent = false;
+      if (serialWriter) {
+        await serialWriter.write(textEncoder.encode("s\n"));
+        serialStatus.textContent = "已发送说话";
+        serialStatus.classList.add("connected");
+        sent = true;
+      } else if (wifiControlEnabled) {
+        const controller = new AbortController();
+        const timer = window.setTimeout(() => controller.abort(), 1200);
+        try {
+          const response = await fetch(`http://192.168.4.1/speak?id=${selectedExpression}`, {
+            signal: controller.signal,
+            mode: "cors"
+          });
+          window.clearTimeout(timer);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          wifiStatus.textContent = "Wi-Fi 已发送说话";
+          wifiStatus.classList.add("connected");
+          sent = true;
+        } catch (error) {
+          window.clearTimeout(timer);
+          wifiStatus.textContent = "请先连接 PixelCat-S3";
+          wifiStatus.classList.remove("connected");
+        }
+      }
+      speakStatus.textContent = sent ? "已触发短音" : "先连串口或启用 Wi-Fi";
+      speakStatus.classList.toggle("connected", sent);
+    }
+
+    async function setExpression(expression, shouldSend) {
+      selectedExpression = expression;
+      renderExpressionButtons();
+      drawExpressionPreview(expression);
+      if (shouldSend) {
+        try {
+          await sendExpression(expression);
+        } catch (error) {
+          serialStatus.textContent = "发送失败";
+          serialStatus.classList.remove("connected");
+        }
+      }
+      await sendWifiExpression(expression);
+    }
+
+    async function connectSerial() {
+      if (!("serial" in navigator)) {
+        serialStatus.textContent = "浏览器不支持 Web Serial";
+        return;
+      }
+      try {
+        if (serialPort) {
+          if (serialWriter) {
+            serialWriter.releaseLock();
+            serialWriter = null;
+          }
+          await serialPort.close();
+          serialPort = null;
+          serialConnect.textContent = "连接 ESP32";
+          serialStatus.textContent = "未连接";
+          serialStatus.classList.remove("connected");
+          return;
+        }
+        serialPort = await navigator.serial.requestPort();
+        await serialPort.open({ baudRate: 115200 });
+        serialWriter = serialPort.writable.getWriter();
+        serialConnect.textContent = "断开连接";
+        serialStatus.textContent = "已连接";
+        serialStatus.classList.add("connected");
+        window.setTimeout(() => sendExpression(selectedExpression).catch(() => {}), 700);
+      } catch (error) {
+        serialStatus.textContent = "连接失败";
+        serialStatus.classList.remove("connected");
+      }
+    }
+
+    function toggleWifiControl() {
+      wifiControlEnabled = !wifiControlEnabled;
+      wifiToggle.textContent = wifiControlEnabled ? "关闭 Wi-Fi 发送" : "启用 Wi-Fi 发送";
+      wifiStatus.textContent = wifiControlEnabled ? "Wi-Fi 已启用" : "Wi-Fi 未启用";
+      wifiStatus.classList.toggle("connected", wifiControlEnabled);
+      if (wifiControlEnabled) sendWifiExpression(selectedExpression);
+    }
+
+    function setOtaStatus(text, ok = false) {
+      otaStatus.textContent = text;
+      otaStatus.classList.toggle("connected", ok);
+    }
+
+    function uploadOtaFirmware() {
+      const file = otaFile.files && otaFile.files[0];
+      if (!file) {
+        setOtaStatus("未选择固件");
+        return;
+      }
+      if (!file.name.endsWith(".bin")) {
+        setOtaStatus("请选择 .bin");
+        return;
+      }
+
+      const form = new FormData();
+      form.append("firmware", file, file.name);
+      const xhr = new XMLHttpRequest();
+      otaUpload.disabled = true;
+      otaProgress.style.width = "0%";
+      setOtaStatus("上传中");
+
+      xhr.upload.onprogress = event => {
+        if (!event.lengthComputable) return;
+        const percent = Math.round((event.loaded / event.total) * 100);
+        otaProgress.style.width = `${percent}%`;
+        setOtaStatus(`${percent}%`);
+      };
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          otaProgress.style.width = "100%";
+          setOtaStatus("完成，重启中", true);
+        } else {
+          setOtaStatus(`失败 ${xhr.status}`);
+          otaUpload.disabled = false;
+        }
+      };
+      xhr.onerror = () => {
+        setOtaStatus("请先连接 PixelCat-S3");
+        otaUpload.disabled = false;
+      };
+      xhr.ontimeout = () => {
+        setOtaStatus("请先连接 PixelCat-S3");
+        otaUpload.disabled = false;
+      };
+      xhr.open("POST", "http://192.168.4.1/update");
+      xhr.timeout = 45000;
+      xhr.send(form);
+    }
+
     const moduleList = document.querySelector("#moduleList");
     const search = document.querySelector("#search");
     const category = document.querySelector("#category");
-    let activeId = "st7789";
+    let activeId = "sht30";
 
     function escapeHtml(text) {
       return String(text).replace(/[&<>"']/g, char => ({
@@ -1053,12 +1742,13 @@
         </tr>
       `).join("");
       document.querySelector("#moduleNotes").innerHTML = item.notes.map(note => `<li>${escapeHtml(note)}</li>`).join("");
-      document.querySelector("#buildSteps").innerHTML = [
+      const steps = item.steps || [
         "USB 断开，先在桌面上确认模块丝印，不按线色猜。",
         "把 ESP32 的 3V3/GND 接到面包板电源轨；需要 5V 的模块再接 5V 轨。",
         "先接 VCC 和 GND，再按表格接信号线。",
         "上电前检查是否把 5V 信号直接接进 ESP32 GPIO。"
-      ].map(step => `<li>${step}</li>`).join("");
+      ];
+      document.querySelector("#buildSteps").innerHTML = steps.map(step => `<li>${escapeHtml(step)}</li>`).join("");
     }
 
     function render() {
@@ -1070,6 +1760,21 @@
 
     search.addEventListener("input", renderList);
     category.addEventListener("change", renderList);
+    serialConnect.addEventListener("click", connectSerial);
+    wifiToggle.addEventListener("click", toggleWifiControl);
+    speakButton.addEventListener("click", () => sendSpeak().catch(() => {
+      speakStatus.textContent = "发送失败";
+      speakStatus.classList.remove("connected");
+    }));
+    otaFile.addEventListener("change", () => {
+      const file = otaFile.files && otaFile.files[0];
+      otaUpload.disabled = !file;
+      otaProgress.style.width = "0%";
+      setOtaStatus(file ? file.name : "未选择固件");
+    });
+    otaUpload.addEventListener("click", uploadOtaFirmware);
+    renderExpressionButtons();
+    drawExpressionPreview(selectedExpression);
     render();
   </script>
 </body>
